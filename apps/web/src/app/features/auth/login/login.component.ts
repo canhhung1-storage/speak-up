@@ -1,8 +1,17 @@
-import { Component, inject, signal } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  OnInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ThemeService } from '../../../core/services/theme.service';
+import { AuthService, AuthResponse } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -54,7 +63,7 @@ import { ThemeService } from '../../../core/services/theme.service';
         <div class="panel-header-actions">
           <button
             class="theme-toggle-btn"
-            (click)="themeService.toggleTheme()"
+            (click)="toggleTheme()"
             [attr.aria-label]="themeService.isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
             title="Toggle theme"
           >
@@ -85,16 +94,22 @@ import { ThemeService } from '../../../core/services/theme.service';
             <p class="form-subtitle">Enter your details to access your learning dashboard.</p>
           </div>
 
-          <!-- Google Sign-In Button -->
-          <button type="button" class="btn-google" (click)="onGoogleSignIn()">
-            <svg class="google-icon" width="20" height="20" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-            </svg>
-            <span>Continue with Google</span>
-          </button>
+          <!-- Error Alert Banner -->
+          @if (errorMessage()) {
+            <div class="error-banner">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              <span>{{ errorMessage() }}</span>
+            </div>
+          }
+
+          <!-- Google Sign-In Container (Renders official Google Continue with Google button) -->
+          <div class="google-auth-box">
+            <div #googleBtnWrapper class="google-btn-wrapper"></div>
+          </div>
 
           <!-- Divider -->
           <div class="divider">
@@ -159,8 +174,12 @@ import { ThemeService } from '../../../core/services/theme.service';
             </div>
 
             <!-- Submit Button -->
-            <button type="submit" class="btn-submit">
-              Sign In
+            <button type="submit" class="btn-submit" [disabled]="authService.isLoading()">
+              @if (authService.isLoading()) {
+                <span>Signing In...</span>
+              } @else {
+                <span>Sign In</span>
+              }
             </button>
           </form>
 
@@ -199,7 +218,7 @@ import { ThemeService } from '../../../core/services/theme.service';
         border-right: 1px solid var(--border-color);
 
         @media (max-width: 980px) {
-          display: none; // Prioritize the login form on mobile devices
+          display: none;
         }
       }
 
@@ -362,7 +381,7 @@ import { ThemeService } from '../../../core/services/theme.service';
 
       .form-header {
         text-align: center;
-        margin-bottom: 28px;
+        margin-bottom: 24px;
       }
 
       .form-title {
@@ -379,55 +398,45 @@ import { ThemeService } from '../../../core/services/theme.service';
         line-height: 1.5;
       }
 
-      // --- Google Button ---
-      .btn-google {
+      .error-banner {
         display: flex;
         align-items: center;
-        justify-content: center;
-        gap: 12px;
-        width: 100%;
-        height: 48px;
+        gap: 10px;
+        padding: 12px 16px;
         border-radius: 12px;
-        font-size: 0.95rem;
-        font-weight: 600;
-        background: #ffffff;
-        color: #1f2937;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-        transition: all 0.2s ease;
-        text-decoration: none;
-
-        &:hover {
-          background: #f8fafc;
-          border-color: #cbd5e1;
-          transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        &:active {
-          transform: translateY(0);
-        }
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.25);
+        color: #ef4444;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 20px;
       }
 
-      :host-context(html[data-theme='dark']) .btn-google {
-        background: #ffffff;
-        color: #0f172a;
-        border-color: #ffffff;
-
-        &:hover {
-          background: #f1f5f9;
-        }
+      // --- Google Auth Box ---
+      .google-auth-box {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        min-height: 48px;
       }
 
-      .google-icon {
-        flex-shrink: 0;
+      .google-btn-wrapper {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+
+        // Center Google's iframe nicely
+        iframe {
+          margin: 0 auto !important;
+        }
       }
 
       // --- Divider ---
       .divider {
         display: flex;
         align-items: center;
-        margin: 26px 0 22px 0;
+        margin: 24px 0 20px 0;
         color: var(--text-muted);
         font-size: 0.725rem;
         font-weight: 700;
@@ -547,13 +556,18 @@ import { ThemeService } from '../../../core/services/theme.service';
         margin-top: 6px;
         transition: all 0.2s ease;
 
-        &:hover {
+        &:hover:not(:disabled) {
           background: #2563eb;
           transform: translateY(-1px);
           box-shadow: 0 6px 18px rgba(59, 130, 246, 0.45);
         }
 
-        &:active {
+        &:disabled {
+          opacity: 0.65;
+          cursor: not-allowed;
+        }
+
+        &:active:not(:disabled) {
           transform: translateY(0);
         }
       }
@@ -581,23 +595,71 @@ import { ThemeService } from '../../../core/services/theme.service';
     `,
   ],
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit, AfterViewInit {
   readonly themeService = inject(ThemeService);
+  readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+
+  @ViewChild('googleBtnWrapper') googleBtnWrapper!: ElementRef<HTMLDivElement>;
 
   email = '';
   password = '';
   showPassword = signal<boolean>(false);
+  errorMessage = signal<string | null>(null);
+
+  ngOnInit(): void {
+    // If already authenticated, redirect immediately
+    if (this.authService.isAuthenticated()) {
+      const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/courses';
+      this.router.navigateByUrl(returnUrl);
+    }
+  }
+
+  ngAfterViewInit(): void {
+    this.setupGoogleAuth();
+  }
+
+  private setupGoogleAuth(): void {
+    this.authService.initGoogleAuth(
+      (response: AuthResponse) => {
+        this.errorMessage.set(null);
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/courses';
+        this.router.navigateByUrl(returnUrl);
+      },
+      (error: any) => {
+        console.error('Google Sign-In failed:', error);
+        this.errorMessage.set('Google sign-in failed. Please try again.');
+      },
+    );
+
+    if (this.googleBtnWrapper?.nativeElement) {
+      this.authService.renderGoogleButton(
+        this.googleBtnWrapper.nativeElement,
+        this.themeService.isDark(),
+        360,
+      );
+    }
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
+    // Re-render google button with updated theme if container exists
+    if (this.googleBtnWrapper?.nativeElement) {
+      this.googleBtnWrapper.nativeElement.innerHTML = '';
+      this.authService.renderGoogleButton(
+        this.googleBtnWrapper.nativeElement,
+        this.themeService.isDark(),
+        360,
+      );
+    }
+  }
 
   togglePasswordVisibility(): void {
     this.showPassword.update((val) => !val);
   }
 
-  onGoogleSignIn(): void {
-    // Sẽ kết nối Google GIS / Auth Service ở Step 5 & 6
-    console.log('Trigger Google Sign-In');
-  }
-
   onSubmitEmail(): void {
-    console.log('Email Sign-In submitted:', { email: this.email });
+    this.errorMessage.set('Email/password login is coming soon. Please use Google Sign-In.');
   }
 }

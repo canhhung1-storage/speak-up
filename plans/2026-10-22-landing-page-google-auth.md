@@ -36,12 +36,14 @@
   - Cập nhật entity `User` (thêm `googleId`, cho phép `passwordHash` nullable).
   - Xây dựng `AuthModule`, `AuthController`, `AuthService` với endpoint `POST /api/auth/google` và `GET /api/auth/me`.
   - Xác thực Google ID Token với Google Client ID, tự động upsert người dùng vào bảng `users` PostgreSQL, phát hành SpeakUp JWT Token.
-- [ ] **Bước 6:** Tích hợp **Google Sign-In trên Frontend Angular**:
-  - Tích hợp Google Identity Services SDK trên nút Sign-In của Navbar và Hero CTA.
-  - Xây dựng `AuthService` quản lý JWT, thông tin user và trạng thái đăng nhập.
-  - Xây dựng `AuthGuard` bảo vệ các route học tập.
-  - Cập nhật Navbar hiển thị Avatar và nút Sign Out khi đã đăng nhập.
-- [ ] **Bước 7:** Kiểm thử toàn diện trên trình duyệt qua cổng `:8080` và xác nhận hoàn thành tính năng.
+- [x] **Bước 6:** Tích hợp **Google Sign-In trên Frontend Angular**:
+  - Cấu hình `environment.ts` với Google Client ID và API URL.
+  - Xây dựng `AuthService` quản lý Google Identity Services (GIS SDK), lưu trữ token/user profile qua Angular Signals.
+  - Tích hợp nút `Continue with Google` trên trang `/login` đồng bộ tự động theo cả Dark/Light mode.
+  - Xây dựng `authGuard` bảo vệ route `/courses` (tự động chuyển hướng về `/login` nếu chưa đăng nhập).
+  - Cập nhật Navbar hiển thị thông tin User (Avatar, Tên), nút Dashboard và Sign Out khi đã đăng nhập.
+  - Hoàn thiện giao diện hiển thị người dùng đăng nhập tại `CourseDashboardComponent`.
+- [x] **Bước 7:** Kiểm thử toàn diện trên trình duyệt qua cổng `:8080` và xác nhận hoàn thành tính năng.
 
 ---
 
