@@ -17,9 +17,9 @@ Tài liệu thiết kế kiến trúc hệ thống, sơ đồ luồng dữ liệ
 | :---: | :--- | :--- |
 | **01** | [`01-docker-infrastructure.md`](./01-docker-infrastructure.md) | Kiến trúc hạ tầng Docker Compose, Network, Port mapping & Persistent Volumes |
 | **02** | [`02-tech-stack-roles.md`](./02-tech-stack-roles.md) | Cẩm nang giải thích vai trò, chức năng và bài toán thực tế của từng công nghệ (Nginx, RabbitMQ, Redis, Postgres...) |
-| **03** | `03-nginx-routing.md` | *(Kế hoạch)* Cấu hình Reverse Proxy, SSL termination, CORS và chuyển tiếp routing |
-| **04** | `04-async-event-flow.md` | *(Kế hoạch)* Luồng xử lý bất đồng bộ qua RabbitMQ Exchange/Queue và Redis Cache |
-| **05** | `05-database-erd.md` | *(Kế hoạch)* Sơ đồ quan hệ thực thể cơ sở dữ liệu PostgreSQL (ERD) |
+| **03** | [`03-database-erd.md`](./03-database-erd.md) | Sơ đồ quan hệ thực thể cơ sở dữ liệu PostgreSQL (ERD) theo phương pháp Effortless English |
+| **04** | `04-nginx-routing.md` | *(Kế hoạch)* Cấu hình Reverse Proxy, SSL termination, CORS và chuyển tiếp routing |
+| **05** | `05-async-event-flow.md` | *(Kế hoạch)* Luồng xử lý bất đồng bộ qua RabbitMQ Exchange/Queue và Redis Cache |
 
 ---
 
