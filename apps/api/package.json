@@ -1,0 +1,9 @@
+{
+  "name": "speakup-api",
+  "version": "0.0.1",
+  "description": "SpeakUp Backend API Service",
+  "scripts": {
+    "start:dev": "node src/main.js"
+  },
+  "dependencies": {}
+}

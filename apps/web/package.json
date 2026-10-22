@@ -1,0 +1,9 @@
+{
+  "name": "speakup-web",
+  "version": "0.0.1",
+  "description": "SpeakUp Frontend Web Service",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {}
+}

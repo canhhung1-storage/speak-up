@@ -1,0 +1,166 @@
+# ==============================================================================
+# 🚀 SpeakUp Project - Docker Compose Orchestration
+# ==============================================================================
+
+name: speakup
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. POSTGRESQL DATABASE
+  # ----------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: speakup-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-speakup_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-speakup_secret_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-speakup_db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - speakup-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-speakup_user} -d ${POSTGRES_DB:-speakup_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ----------------------------------------------------------------------------
+  # 2. REDIS IN-MEMORY DATA STORE
+  # ----------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: speakup-redis
+    restart: unless-stopped
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:-redis_secret_pass}"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - speakup-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis_secret_pass}", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ----------------------------------------------------------------------------
+  # 3. RABBITMQ MESSAGE BROKER & MANAGEMENT UI
+  # ----------------------------------------------------------------------------
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: speakup-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-speakup_rabbit}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-rabbit_secret_pass}
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - speakup-net
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  # ----------------------------------------------------------------------------
+  # 4. NESTJS BACKEND API SERVICE
+  # ----------------------------------------------------------------------------
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: speakup-api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      API_PORT: ${API_PORT:-3000}
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_HOST: redis
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis_secret_pass}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: ${RABBITMQ_PORT:-5672}
+      RABBITMQ_USER: ${RABBITMQ_DEFAULT_USER:-speakup_rabbit}
+      RABBITMQ_PASS: ${RABBITMQ_DEFAULT_PASS:-rabbit_secret_pass}
+      JWT_SECRET: ${JWT_SECRET}
+    ports:
+      - "${API_PORT:-3000}:3000"
+    volumes:
+      - ./apps/api:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - speakup-net
+
+  # ----------------------------------------------------------------------------
+  # 5. ANGULAR FRONTEND WEB SERVICE
+  # ----------------------------------------------------------------------------
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: speakup-web
+    restart: unless-stopped
+    environment:
+      WEB_PORT: ${WEB_PORT:-4200}
+    ports:
+      - "${WEB_PORT:-4200}:4200"
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules
+    networks:
+      - speakup-net
+
+  # ----------------------------------------------------------------------------
+  # 6. NGINX REVERSE PROXY & GATEWAY
+  # ----------------------------------------------------------------------------
+  nginx:
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
+    container_name: speakup-nginx
+    restart: unless-stopped
+    ports:
+      - "${NGINX_PORT:-80}:80"
+    depends_on:
+      api:
+        condition: service_started
+      web:
+        condition: service_started
+    networks:
+      - speakup-net
+
+# ------------------------------------------------------------------------------
+# VOLUMES (Lưu trữ bền vững)
+# ------------------------------------------------------------------------------
+volumes:
+  postgres_data:
+    name: speakup_postgres_data
+  redis_data:
+    name: speakup_redis_data
+  rabbitmq_data:
+    name: speakup_rabbitmq_data
+
+# ------------------------------------------------------------------------------
+# NETWORKS (Mạng nội bộ cách ly)
+# ------------------------------------------------------------------------------
+networks:
+  speakup-net:
+    name: speakup_network
+    driver: bridge
