@@ -23,6 +23,8 @@
 - [x] Tạo `.gitignore` chuẩn Enterprise đa nền tảng
 - [x] Tạo sơ đồ kiến trúc hạ tầng `docs/architecture/01-docker-infrastructure.md`
 - [x] Tạo cẩm nang vai trò công nghệ `docs/architecture/02-tech-stack-roles.md`
+- [x] Tạo tài liệu tổng quan dự án `README.md` ở thư mục gốc
+- [x] Tạo cẩm nang khởi động và vận hành từ A-Z `docs/GETTING_STARTED.md`
 - [x] Thực hiện commit đầu tiên (Initial commit: `e069903`)
 
 ### Nhóm 2: Pha 2 - Thực thi xây dựng Môi trường Docker (Execute)
