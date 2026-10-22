@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { CoursesModule } from './modules/courses/courses.module';
 import { LessonsModule } from './modules/lessons/lessons.module';
+import { AuthModule } from './modules/auth/auth.module';
 import {
   User,
   Course,
@@ -19,6 +20,7 @@ import {
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    AuthModule,
     CoursesModule,
     LessonsModule,
     TypeOrmModule.forRootAsync({

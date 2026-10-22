@@ -31,10 +31,11 @@
   - Bottom Dark Radial CTA Banner (*"Ready to Speak English Effortlessly?"*).
   - Footer chuẩn mực và hệ thống ThemeService hỗ trợ chuyển đổi mượt mà giữa Dark và Light mode.
   - Trang Login Split-Screen (`/login`) với branding, trích dẫn A.J. Hoge, nút Google Sign-In chuẩn tiếng Anh (`Continue with Google`), form Email/Password và toggle mắt xem mật khẩu.
-- [ ] **Bước 5:** Xây dựng **Backend Google Auth (`apps/api`)**:
-  - Cài đặt `google-auth-library` và `@nestjs/jwt`.
-  - Xây dựng `AuthModule` với endpoint `POST /api/auth/google`.
-  - Verify Google ID Token, tự động tạo / cập nhật tài khoản vào bảng `users` PostgreSQL, trả về SpeakUp JWT.
+- [x] **Bước 5:** Xây dựng **Backend Google Auth (`apps/api`)**:
+  - Cài đặt `google-auth-library`, `@nestjs/jwt`, `@nestjs/passport`, `passport-jwt`.
+  - Cập nhật entity `User` (thêm `googleId`, cho phép `passwordHash` nullable).
+  - Xây dựng `AuthModule`, `AuthController`, `AuthService` với endpoint `POST /api/auth/google` và `GET /api/auth/me`.
+  - Xác thực Google ID Token với Google Client ID, tự động upsert người dùng vào bảng `users` PostgreSQL, phát hành SpeakUp JWT Token.
 - [ ] **Bước 6:** Tích hợp **Google Sign-In trên Frontend Angular**:
   - Tích hợp Google Identity Services SDK trên nút Sign-In của Navbar và Hero CTA.
   - Xây dựng `AuthService` quản lý JWT, thông tin user và trạng thái đăng nhập.

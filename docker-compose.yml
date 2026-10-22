@@ -99,6 +99,7 @@ services:
       RABBITMQ_PASS: ${RABBITMQ_DEFAULT_PASS:-rabbit_secret_pass}
       JWT_SECRET: ${JWT_SECRET}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      NODE_TLS_REJECT_UNAUTHORIZED: "0"
     ports:
       - "${API_PORT:-3000}:3000"
     volumes:
