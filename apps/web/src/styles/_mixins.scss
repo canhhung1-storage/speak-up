@@ -1,0 +1,50 @@
+@use 'variables' as *;
+
+// --- Responsive Breakpoints ---
+@mixin mobile {
+  @media (max-width: #{$bp-md - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: #{$bp-md}) and (max-width: #{$bp-lg - 1px}) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: #{$bp-lg}) {
+    @content;
+  }
+}
+
+// --- Glassmorphism ---
+@mixin glass-panel($bg: rgba(17, 24, 39, 0.75), $blur: 16px) {
+  background: $bg;
+  backdrop-filter: blur($blur);
+  -webkit-backdrop-filter: blur($blur);
+  border: 1px solid $border-subtle;
+}
+
+// --- Gradient Text ---
+@mixin gradient-text($from: $primary-light, $to: $accent-light) {
+  background: linear-gradient(135deg, $from 0%, $to 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+// --- Subtle Glow ---
+@mixin glow($color: rgba(99, 102, 241, 0.35), $size: 20px) {
+  box-shadow: 0 0 $size $color;
+}
+
+// --- Card Hover Animation ---
+@mixin hover-lift {
+  transition: transform $transition-base, box-shadow $transition-base, border-color $transition-base;
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.4);
+    border-color: $border-active;
+  }
+}

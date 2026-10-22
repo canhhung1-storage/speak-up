@@ -1,0 +1,175 @@
+@use 'styles/variables' as *;
+@use 'styles/mixins' as *;
+
+// --- CSS Variables for Light Mode (Default) ---
+:root,
+html[data-theme='light'] {
+  --bg-main: #fcfcfd;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #f8fafc;
+  --bg-surface-hover: #f1f5f9;
+  --bg-watermark: #f1f5f9;
+
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+
+  --border-color: #e2e8f0;
+  --border-active: #3b82f6;
+
+  --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+  --card-shadow-hover: 0 16px 40px rgba(0, 0, 0, 0.08);
+
+  --nav-bg: rgba(255, 255, 255, 0.85);
+  --badge-bg: #eff6ff;
+  --badge-text: #3b82f6;
+  --badge-border: #dbeafe;
+
+  --highlight-bg: #fef08a;
+  --highlight-text: #854d0e;
+
+  --btn-secondary-bg: #ffffff;
+  --btn-secondary-text: #0f172a;
+  --btn-secondary-border: #e2e8f0;
+  --btn-secondary-hover: #f8fafc;
+}
+
+// --- CSS Variables for Dark Mode ---
+html[data-theme='dark'] {
+  --bg-main: #0a0d14;
+  --bg-surface: #111827;
+  --bg-surface-elevated: #1e293b;
+  --bg-surface-hover: #26334d;
+  --bg-watermark: rgba(255, 255, 255, 0.04);
+
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-active: #60a5fa;
+
+  --card-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
+  --card-shadow-hover: 0 20px 45px rgba(0, 0, 0, 0.7);
+
+  --nav-bg: rgba(17, 24, 39, 0.85);
+  --badge-bg: rgba(59, 130, 246, 0.15);
+  --badge-text: #93c5fd;
+  --badge-border: rgba(59, 130, 246, 0.3);
+
+  --highlight-bg: rgba(250, 204, 21, 0.25);
+  --highlight-text: #fde047;
+
+  --btn-secondary-bg: rgba(255, 255, 255, 0.06);
+  --btn-secondary-text: #f8fafc;
+  --btn-secondary-border: rgba(255, 255, 255, 0.12);
+  --btn-secondary-hover: rgba(255, 255, 255, 0.1);
+}
+
+// --- Modern Reset ---
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: $font-family;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color $transition-base, color $transition-base;
+}
+
+body {
+  min-height: 100vh;
+  line-height: 1.6;
+  background-color: var(--bg-main);
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  background: none;
+}
+
+// --- Typography ---
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+p {
+  color: var(--text-secondary);
+}
+
+// --- Common Classes ---
+.container {
+  width: 100%;
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 24px;
+
+  @include mobile {
+    padding: 0 16px;
+  }
+}
+
+.gradient-speaking {
+  background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+// --- Scroll Reveal Animations (Smooth Viewport Fade-In / Slide-Up) ---
+.reveal-init {
+  opacity: 0;
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+
+  &.reveal-up {
+    transform: translateY(32px);
+  }
+
+  &.reveal-down {
+    transform: translateY(-32px);
+  }
+
+  &.reveal-left {
+    transform: translateX(36px);
+  }
+
+  &.reveal-right {
+    transform: translateX(-36px);
+  }
+
+  &.reveal-fade {
+    transform: none;
+  }
+
+  &.is-revealed {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+
+// --- Reduced Motion Support ---
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

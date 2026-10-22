@@ -98,6 +98,7 @@ services:
       RABBITMQ_USER: ${RABBITMQ_DEFAULT_USER:-speakup_rabbit}
       RABBITMQ_PASS: ${RABBITMQ_DEFAULT_PASS:-rabbit_secret_pass}
       JWT_SECRET: ${JWT_SECRET}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
     ports:
       - "${API_PORT:-3000}:3000"
     volumes:
@@ -123,6 +124,8 @@ services:
     restart: unless-stopped
     environment:
       WEB_PORT: ${WEB_PORT:-4200}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      NG_CLI_ANALYTICS: "false"
     ports:
       - "${WEB_PORT:-4200}:4200"
     volumes:
