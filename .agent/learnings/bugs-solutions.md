@@ -23,3 +23,32 @@
   2. **Giải pháp triệt để:** Thay thế bằng **TypeORM** (`typeorm`, `@nestjs/typeorm`, `pg`). TypeORM là 100% JavaScript/TypeScript thuần, không yêu cầu bất kỳ file nhị phân ngoại lai nào, tích hợp sâu vào hệ sinh thái Dependency Injection của NestJS.
 - **Files liên quan**: `apps/api/package.json`, `apps/api/src/app.module.ts`, `apps/api/src/database/entities/`
 
+
+### [Frontend & Security] Google Avatar URL 403 Forbidden do Referrer Policy
+- **Ngày**: 2026-10-22
+- **Task**: Tích hợp Google OAuth 2.0 Avatar vào Navbar & Dashboard
+- **Chi tiết**:
+  1. **Hiện tượng:** Ảnh đại diện người dùng từ Google CDN (`lh3.googleusercontent.com`) bị lỗi ảnh vỡ (Broken image icon) mặc dù URL hoàn toàn hợp lệ.
+  2. **Nguyên nhân gốc rễ:** Google CDN chặn truy cập (HTTP 403 Forbidden) nếu trình duyệt gửi tiêu đề `Referer` từ tên miền ngoài (như `http://localhost:8080/`).
+  3. **Giải pháp triệt để:** 
+     - Thêm thuộc tính `referrerpolicy="no-referrer"` vào thẻ `<img>` (`<img [src]="avatarUrl" referrerpolicy="no-referrer" />`).
+     - Bổ sung cơ chế fallback `(error)="imageFailed.set(true)"` để tự động render avatar chữ cái đầu (`CN` - Canh Nguyen) trên nền tròn tinh tế nếu ảnh Google bị chặn hoặc mất mạng.
+- **Files liên quan**: `apps/web/src/app/features/learning/course-dashboard.component.ts`, `apps/web/src/app/features/landing/components/navbar/navbar.component.ts`
+
+### [Angular Security] DomSanitizer strip thẻ `<svg>` khi binding `[innerHTML]`
+- **Ngày**: 2026-10-22
+- **Task**: Render các icon SVG trong các card "4 Pillars" và "How It Works"
+- **Chi tiết**:
+  1. **Hiện tượng:** Truyền chuỗi SVG qua `[innerHTML]="step.iconSvg"` làm icon bị biến mất hoàn toàn trên giao diện.
+  2. **Nguyên nhân gốc rễ:** Bộ lọc bảo mật `DomSanitizer` mặc định của Angular tự động loại bỏ (strip) các thẻ `<svg>` và các phần tử con (`<path>`, `<polygon>`) để phòng tránh lỗ hổng bảo mật XSS.
+  3. **Giải pháp triệt để:** Chuyển sang Inline SVG native trong template kết hợp với cấu trúc điều khiển `@switch (step.iconType)` / `@case`. Cách này vừa an toàn 100%, vừa giúp CSS dễ dàng điều khiển màu sắc qua `currentColor`.
+- **Files liên quan**: `apps/web/src/app/features/landing/components/pillars/pillars.component.ts`, `apps/web/src/app/features/landing/components/how-it-works/how-it-works.component.ts`
+
+### [Docker & Node.js] Google OAuth verifyIdToken lỗi TLS Certificate trong môi trường mạng nội bộ
+- **Ngày**: 2026-10-22
+- **Task**: Xác thực Google ID Token với `google-auth-library` trên NestJS Backend
+- **Chi tiết**:
+  1. **Hiện tượng:** Khi gọi `OAuth2Client.verifyIdToken()`, request đến `https://www.googleapis.com/oauth2/v1/certs` bị lỗi: `Failed to retrieve verification certificates: request to ... failed, reason: unable to get local issuer certificate`.
+  2. **Nguyên nhân gốc rễ:** Mạng doanh nghiệp hoặc VPN sử dụng tường lửa kiểm tra gói tin SSL (SSL/TLS Inspection), khiến Node.js trong container Alpine không tìm thấy chứng chỉ Root CA nội bộ trong kho Mozilla CA mặc định.
+  3. **Giải pháp triệt để:** Bổ sung biến môi trường `NODE_TLS_REJECT_UNAUTHORIZED="0"` trong cấu hình môi trường phát triển (Development) tại `docker-compose.yml`.
+- **Files liên quan**: `docker-compose.yml`, `apps/api/src/modules/auth/auth.service.ts`

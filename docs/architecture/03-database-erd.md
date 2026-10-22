@@ -19,7 +19,8 @@ erDiagram
     users {
         uuid id PK "Khóa chính UUID"
         string email UK "Email đăng nhập duy nhất"
-        string password_hash "Mật khẩu mã hóa Bcrypt"
+        string google_id UK "Google OAuth Subject ID (Nullable)"
+        string password_hash "Mật khẩu mã hóa Bcrypt (Nullable khi dùng Google OAuth)"
         string full_name "Họ và tên"
         string role "ADMIN | LEARNER"
         string avatar_url "Ảnh đại diện"
@@ -113,7 +114,8 @@ Dưới đây là giải thích chi tiết mục đích nghiệp vụ, ý nghĩa
 | :--- | :--- | :--- | :--- |
 | `id` | `UUID` | **PK**, Default: `gen_random_uuid()` | Định danh duy nhất toàn cầu cho mỗi tài khoản. |
 | `email` | `VARCHAR(255)` | **NOT NULL**, **UNIQUE**, Index | Email đăng nhập của người dùng. *(VD: `learner@example.com`)*. |
-| `password_hash` | `VARCHAR(255)` | **NOT NULL** | Chuỗi mật khẩu đã được mã hóa an toàn bằng thuật toán Bcrypt. |
+| `google_id` | `VARCHAR(255)` | Nullable, **UNIQUE**, Index | Mã định danh người dùng Google OAuth 2.0 (sub). *(VD: `109283746592837461928`)*. |
+| `password_hash` | `VARCHAR(255)` | Nullable | Chuỗi mật khẩu đã được mã hóa Bcrypt. Nullable khi người dùng đăng nhập bằng Google. |
 | `full_name` | `VARCHAR(100)` | **NOT NULL** | Tên hiển thị của người dùng trên giao diện. *(VD: `Nguyễn Cảnh Hùng`)*. |
 | `role` | `VARCHAR(20)` | **NOT NULL**, Default: `'LEARNER'` | Quyền hạn: `ADMIN` (Được quyền thêm/sửa/xóa khóa học) hoặc `LEARNER` (Người học thông thường). |
 | `avatar_url` | `VARCHAR(500)` | Nullable | Đường dẫn ảnh đại diện đại diện người dùng. |
