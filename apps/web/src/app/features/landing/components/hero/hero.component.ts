@@ -32,7 +32,7 @@ import { ScrollRevealDirective } from '../../../../core/directives/scroll-reveal
 
           <!-- Action Buttons -->
           <div class="hero-actions">
-            <a routerLink="/courses" class="btn btn-primary">
+            <a routerLink="/login" class="btn btn-primary">
               Start Learning Free <span class="btn-icon">→</span>
             </a>
             <a href="#how-it-works" class="btn btn-secondary">

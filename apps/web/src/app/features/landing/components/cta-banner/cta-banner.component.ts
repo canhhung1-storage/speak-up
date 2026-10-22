@@ -26,7 +26,7 @@ import { ScrollRevealDirective } from '../../../../core/directives/scroll-reveal
 
           <!-- White CTA Button -->
           <div class="banner-action">
-            <a routerLink="/courses" class="btn-banner-white">
+            <a routerLink="/login" class="btn-banner-white">
               Get Started Free <span class="btn-icon">→</span>
             </a>
           </div>
