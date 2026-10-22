@@ -1,16 +1,16 @@
-# 📋 Kế Hoạch Ngày: 2026-10-22 - Khởi Tạo & Brainstorming Ứng Dụng SpeakUp
+# 📋 Kế Hoạch Ngày: 2026-10-22 - Khởi Tạo & Thiết Lập Môi Trường Docker Cho SpeakUp
 
-> **Trạng thái:** 🟡 Đang thực hiện (In Progress)  
+> **Trạng thái:** 🟢 Hoàn thành (Done)  
 > **Người thực hiện:** Dev + AI Agent  
-> **Workflow áp dụng:** `.agent/workflows/plan.md` (Pha 1: Brainstorming)
+> **Workflow áp dụng:** `.agent/workflows/plan.md` (Đã hoàn thành đủ 3 Pha: Brainstorm ➔ Execute ➔ Save Learnings)
 
 ---
 
 ## 🎯 1. Mục tiêu trong ngày (Goals)
 - [x] Khởi tạo thư mục quản lý công việc `plans/` kèm hướng dẫn và template.
 - [x] **Pha 1: Brainstorming** — Hoàn thành thống nhất kiến trúc, sơ đồ hạ tầng, vai trò công nghệ và chốt thiết kế (Gate 1 Passed).
-- [/] **Pha 2: Execute** — Triển khai cấu hình Docker Compose, Nginx, Database init, biến môi trường và cấu trúc thư mục Monorepo cho SpeakUp.
-- [ ] **Pha 3: Save Learnings** — Ghi nhận các bài học và quyết định kiến trúc vào `.agent/learnings/`.
+- [x] **Pha 2: Execute** — Triển khai cấu hình Docker Compose, Nginx, Database init, biến môi trường và cấu trúc thư mục Monorepo cho SpeakUp.
+- [x] **Pha 3: Save Learnings** — Ghi nhận các bài học và quyết định kiến trúc vào `.agent/learnings/` (Đã lưu vào `architecture.md` và `patterns.md`).
 
 ---
 
@@ -33,6 +33,10 @@
 - [x] **Task 2.5:** Viết file `docker-compose.yml` hoàn chỉnh (6 services, healthchecks, volumes, network)
 - [x] **Task 2.6:** Verify cú pháp và cấu hình bằng lệnh `docker compose config` (Clean 100%, 0 warning)
 
+### Nhóm 3: Pha 3 - Lưu trữ tri thức (Save Learnings)
+- [x] Trích xuất kiến thức kiến trúc 6 container & healthcheck vào `.agent/learnings/architecture.md`
+- [x] Trích xuất quy chuẩn giao tiếp Service Name vào `.agent/learnings/patterns.md`
+
 ---
 
 ## 📝 3. Quyết định kỹ thuật & Ghi chú (Notes & Decisions)
@@ -40,8 +44,11 @@
   1. Giúp người dùng thực hành học tiếng Anh hàng ngày hiệu quả.
   2. Nền tảng thực chiến để học hỏi công nghệ mới qua phong cách Vibe Coding có kỷ luật.
 - **Tài liệu học tập:** Đã biên soạn cẩm nang chi tiết vai trò của 6 công nghệ (Nginx, RabbitMQ, Redis, Postgres, NestJS, Angular) tại `docs/architecture/02-tech-stack-roles.md`.
+- **Hạ tầng đã sẵn sàng:** Có thể chạy `docker compose up -d` bất kỳ lúc nào để khởi động toàn bộ môi trường.
 
 ---
 
 ## ⏭️ 4. Tồn đọng cho buổi tiếp theo (Next Steps / Backlog)
-- [ ] Khởi tạo source code dự án theo Tech stack đã thống nhất ở Pha 1.
+- [ ] Chạy thử nghiệm `docker compose up -d` trên máy host để kiểm tra giao diện web và dashboard RabbitMQ.
+- [ ] Khởi tạo dự án NestJS thực tế trong `apps/api` (kèm kết nối TypeORM/Prisma tới PostgreSQL và Redis).
+- [ ] Khởi tạo dự án Angular trong `apps/web` (giao diện học tập, micro audio recorder).
