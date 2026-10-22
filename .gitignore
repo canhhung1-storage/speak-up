@@ -32,6 +32,7 @@ apps/*/node_modules/
 dist/
 */dist/
 apps/*/dist/
+*.tsbuildinfo
 
 # Angular build & cache
 .angular/

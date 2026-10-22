@@ -46,6 +46,18 @@
 - [x] **Task 4.3:** Thống nhất đổi tên bảng từ vựng thành `lesson_vocabularies` cho đồng bộ với `lesson_articles` và `lesson_audios`.
 - [x] **Task 4.4:** Hoàn thiện sơ đồ Mermaid ERD và Từ điển Dữ liệu (Data Dictionary) chi tiết tại `docs/architecture/03-database-erd.md`.
 
+### Nhóm 5: Khởi tạo Backend NestJS & TypeORM (apps/api)
+- [x] **Task 5.1:** Thay thế Prisma ORM bằng TypeORM (`@nestjs/typeorm`, `typeorm`, `pg`) nhằm tối ưu cho môi trường mạng doanh nghiệp và tương thích sâu với NestJS.
+- [x] **Task 5.2:** Xây dựng 7 Entities TypeORM (`User`, `Course`, `Lesson`, `LessonArticle`, `LessonVocabulary`, `LessonAudio`, `UserLessonProgress`) chuẩn hóa theo tài liệu ERD.
+- [x] **Task 5.3:** Cấu hình `TypeOrmModule` trong `app.module.ts` kết nối PostgreSQL với cơ chế `synchronize: true` tự động tạo bảng.
+- [x] **Task 5.4:** Khởi động NestJS container và kiểm tra các bảng được tự động tạo trong PostgreSQL.
+- [x] **Task 5.5:** Viết kịch bản Seed Data mẫu (`apps/api/src/database/seeds/seed.ts`) tạo tài khoản Admin/Learner, khóa học *Power English*, bài học *A Kiss* (Article có `<mark>`, 5 từ vựng, 3 bài audio Mini Story / POV / Commentary).
+- [x] **Task 5.6:** Xây dựng các REST API endpoints chuẩn hóa 3 lớp (3-Tier Architecture) kèm DTO:
+  - `GET /api/courses`: Danh sách khóa học xuất bản.
+  - `GET /api/courses/:slug`: Chi tiết khóa học kèm danh sách bài học.
+  - `GET /api/courses/:courseSlug/lessons/:lessonSlug`: Toàn bộ nội dung bài học Effortless English.
+- [x] **Task 5.7:** Thiết lập Global Exception Filter (`HttpExceptionFilter`) chuẩn hóa phản hồi lỗi JSON đồng nhất cho toàn hệ thống.
+
 ---
 
 ## 📝 3. Quyết định kỹ thuật & Ghi chú (Notes & Decisions)
@@ -55,12 +67,13 @@
 - **Tài liệu học tập:** Đã biên soạn cẩm nang chi tiết vai trò của 6 công nghệ (Nginx, RabbitMQ, Redis, Postgres, NestJS, Angular) tại `docs/architecture/02-tech-stack-roles.md`.
 - **Hạ tầng đã sẵn sàng:** 6 container đã chạy thực tế trên máy host tại `http://localhost:8080`.
 - **Quy tắc làm việc với Git:** **TUYỆT ĐỐI KHÔNG tự ý commit code**. Chỉ thực hiện `git commit` khi người dùng yêu cầu rõ ràng.
+- **Thay thế Prisma bằng TypeORM:** Loại bỏ hoàn toàn sự phụ thuộc vào file nhị phân `query-engine` của Prisma vốn dễ bị timeout trên mạng doanh nghiệp có proxy; TypeORM tương thích trực tiếp 100% với TypeScript và NestJS.
 - **Thiết kế Database linh hoạt:** Hỗ trợ tiến hóa schema thông qua Database Migrations mà không làm mất dữ liệu cũ.
 
 ---
 
 ## ⏭️ 4. Tồn đọng cho buổi tiếp theo (Next Steps / Backlog)
-- [ ] Chọn công nghệ ORM (Prisma ORM) cho NestJS backend.
-- [ ] Khởi tạo dự án NestJS chính thức trong `apps/api` và tạo Prisma Schema tương ứng với ERD.
-- [ ] Chạy migration đầu tiên để tạo các bảng trong PostgreSQL.
-- [ ] Viết seed data mẫu ban đầu (1 khóa học, 1 bài học Effortless English với đầy đủ 5 audio/article items).
+- [ ] Xây dựng Frontend Angular (`apps/web`): Cấu trúc màn hình Học bài Effortless English (Sidebar danh sách bài, Main Article hiển thị đoạn văn đánh dấu từ vựng, Audio Player tương tác phát bài nghe).
+- [ ] Xây dựng Auth Module (NestJS JWT Authentication): Đăng nhập, đăng ký, bảo vệ tiến độ học cho từng học viên.
+- [ ] Tích hợp Redis Caching: Cache danh sách khóa học và chi tiết bài học để giảm tải truy vấn cơ sở dữ liệu.
+- [ ] Tích hợp RabbitMQ: Bắn event cập nhật tiến độ học tập (`user.lesson.progress_updated`) để xử lý bất đồng bộ.
