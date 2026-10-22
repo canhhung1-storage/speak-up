@@ -23,13 +23,14 @@
   - Khởi tạo cấu trúc Standalone Components, hệ thống Design Tokens SCSS (màu sắc, typography, glassmorphism, responsive).
   - Cấu hình Angular Router (`/` ➔ Landing Page, `/courses` ➔ Learning Dashboard có AuthGuard).
   - Cập nhật `Dockerfile` cho `apps/web` để chạy mượt mà trong Docker Compose.
-- [x] **Bước 4:** Thiết kế chi tiết các Section của **Landing Page (100% Tiếng Anh)** khớp 100% theo ảnh mẫu:
-  - Header / Navbar (Sticky, logo gradient, menu The Method / How It Works, nút toggle Dark/Light mode, nút Dashboard CTA).
-  - Hero Section (Pill badge, headline, sub-headline, nút CTA, Floating Audio Player Card với hiệu ứng bay và highlight câu chuyện *Dragons*).
-  - The 4 Pillars of Fluency (4 Cards pastel: Audio Article, Vocabulary, Mini-Story có viền active nổi bật, Point of View).
-  - How It Works (4 Step Cards lộ trình với số watermark lớn mờ nhạt 01 - 04).
+- [x] **Bước 4:** Thiết kế chi tiết các Section của **Landing Page & Login Page (100% Tiếng Anh)**:
+  - Header / Navbar (Fixed, logo gradient, menu The Method / How It Works, toggle Dark/Light mode, nút Sign In).
+  - Hero Section (Pill badge, headline, sub-headline, nút Start Learning Free, Floating Audio Player Card với hiệu ứng bay và highlight câu chuyện *Dragons*).
+  - The 4 Pillars of Fluency (4 Cards với số watermark 01 - 04, icon headphones, book, zap, history).
+  - How It Works (4 Step Cards lộ trình với số watermark lớn 01 - 04, icon sparkles cho Master Grammar).
   - Bottom Dark Radial CTA Banner (*"Ready to Speak English Effortlessly?"*).
   - Footer chuẩn mực và hệ thống ThemeService hỗ trợ chuyển đổi mượt mà giữa Dark và Light mode.
+  - Trang Login Split-Screen (`/login`) với branding, trích dẫn A.J. Hoge, nút Google Sign-In chuẩn tiếng Anh (`Continue with Google`), form Email/Password và toggle mắt xem mật khẩu.
 - [ ] **Bước 5:** Xây dựng **Backend Google Auth (`apps/api`)**:
   - Cài đặt `google-auth-library` và `@nestjs/jwt`.
   - Xây dựng `AuthModule` với endpoint `POST /api/auth/google`.
