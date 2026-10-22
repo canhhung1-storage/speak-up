@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ScrollRevealDirective } from '../../../../core/directives/scroll-reveal.directive';
 
 interface Pillar {
+  number: string;
   iconType: 'blue' | 'pink' | 'orange' | 'purple';
-  iconSvg: string;
   title: string;
   description: string;
   featured?: boolean;
@@ -34,9 +34,46 @@ interface Pillar {
               appReveal
               [delay]="i * 120"
             >
-              <div class="pillar-icon-box" [ngClass]="'icon-' + pillar.iconType">
-                <span [innerHTML]="pillar.iconSvg"></span>
+              <!-- Card Header with Icon Box and Big Watermark Number -->
+              <div class="pillar-card-header">
+                <div class="pillar-icon-box" [ngClass]="'icon-' + pillar.iconType">
+                  @switch (pillar.iconType) {
+                    @case ('blue') {
+                      <!-- Headphones for Listening -->
+                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"></path>
+                        <path d="M21 12a9 9 0 0 0-18 0"></path>
+                      </svg>
+                    }
+                    @case ('pink') {
+                      <!-- Book for Vocabulary -->
+                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path>
+                        <path d="M8 7h8"></path>
+                        <path d="M8 11h8"></path>
+                        <path d="M8 15h5"></path>
+                      </svg>
+                    }
+                    @case ('orange') {
+                      <!-- Zap for Speaking Reflex -->
+                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                      </svg>
+                    }
+                    @case ('purple') {
+                      <!-- Clock / Timeline for Grammar Tenses -->
+                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                        <path d="M3 3v5h5"></path>
+                        <path d="M12 7v5l4 2"></path>
+                      </svg>
+                    }
+                  }
+                </div>
+                <span class="pillar-watermark">{{ pillar.number }}</span>
               </div>
+
+              <!-- Content -->
               <h3 class="pillar-title">{{ pillar.title }}</h3>
               <p class="pillar-desc">{{ pillar.description }}</p>
             </div>
@@ -83,6 +120,7 @@ interface Pillar {
       }
 
       .pillar-card {
+        position: relative;
         background: var(--bg-surface);
         border: 1px solid var(--border-color);
         border-radius: 18px;
@@ -103,6 +141,13 @@ interface Pillar {
         }
       }
 
+      .pillar-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+      }
+
       .pillar-icon-box {
         width: 44px;
         height: 44px;
@@ -110,7 +155,11 @@ interface Pillar {
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 20px;
+        flex-shrink: 0;
+
+        svg {
+          display: block;
+        }
 
         &.icon-blue {
           background: #eff6ff;
@@ -133,6 +182,35 @@ interface Pillar {
         }
       }
 
+      :host-context(html[data-theme='dark']) {
+        .pillar-icon-box.icon-blue {
+          background: rgba(59, 130, 246, 0.15);
+        }
+        .pillar-icon-box.icon-pink {
+          background: rgba(236, 72, 153, 0.15);
+        }
+        .pillar-icon-box.icon-orange {
+          background: rgba(249, 115, 22, 0.15);
+        }
+        .pillar-icon-box.icon-purple {
+          background: rgba(139, 92, 246, 0.15);
+        }
+      }
+
+      .pillar-watermark {
+        font-size: 2.5rem;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -0.04em;
+        color: #e2e8f0;
+        user-select: none;
+        transition: color 0.25s ease;
+      }
+
+      :host-context(html[data-theme='dark']) .pillar-watermark {
+        color: rgba(255, 255, 255, 0.08);
+      }
+
       .pillar-title {
         font-size: 1.05rem;
         font-weight: 700;
@@ -150,51 +228,30 @@ interface Pillar {
 export class PillarsComponent {
   readonly pillars: Pillar[] = [
     {
+      number: '01',
       iconType: 'blue',
-      iconSvg: `
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
-          <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
-        </svg>
-      `,
       title: 'Main Audio Article',
       description:
         'Listen to fascinating stories and articles. Improve your listening comprehension naturally.',
     },
     {
+      number: '02',
       iconType: 'pink',
-      iconSvg: `
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M17 8h1a4 4 0 1 1 0 8h-1"></path>
-          <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path>
-          <line x1="6" y1="2" x2="6" y2="4"></line>
-          <line x1="10" y1="2" x2="10" y2="4"></line>
-          <line x1="14" y1="2" x2="14" y2="4"></line>
-        </svg>
-      `,
       title: 'Vocabulary Lesson',
       description:
         'Learn words in context through audio explanations, never memorize lists again.',
     },
     {
+      number: '03',
       iconType: 'orange',
-      iconSvg: `
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-        </svg>
-      `,
       title: 'Mini-Story (Q&A)',
       description:
         'The secret weapon. Answer fast-paced questions to train your brain to think in English.',
-      featured: true, // viền active xanh nổi bật như hình mẫu
+      featured: true,
     },
     {
+      number: '04',
       iconType: 'purple',
-      iconSvg: `
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-        </svg>
-      `,
       title: 'Point of View Story',
       description:
         'Master English grammar instinctively by listening to the same story in different tenses.',

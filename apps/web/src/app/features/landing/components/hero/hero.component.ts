@@ -33,7 +33,7 @@ import { ScrollRevealDirective } from '../../../../core/directives/scroll-reveal
           <!-- Action Buttons -->
           <div class="hero-actions">
             <a routerLink="/courses" class="btn btn-primary">
-              Go to Dashboard <span class="btn-icon">🚀</span>
+              Start Learning Free <span class="btn-icon">→</span>
             </a>
             <a href="#how-it-works" class="btn btn-secondary">
               <span class="play-icon">▶</span> Watch Demo
@@ -102,7 +102,7 @@ import { ScrollRevealDirective } from '../../../../core/directives/scroll-reveal
   styles: [
     `
       .hero-section {
-        padding: 72px 0 64px 0;
+        padding: calc(68px + 48px) 0 64px 0;
         overflow: hidden;
       }
 

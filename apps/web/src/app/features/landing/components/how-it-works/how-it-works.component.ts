@@ -5,7 +5,6 @@ import { ScrollRevealDirective } from '../../../../core/directives/scroll-reveal
 interface Step {
   stepNumber: string;
   iconType: 'blue' | 'pink' | 'orange' | 'purple';
-  iconSvg: string;
   title: string;
   description: string;
 }
@@ -32,7 +31,37 @@ interface Step {
               <!-- Top Header with Icon and Big Watermark Number -->
               <div class="step-card-header">
                 <div class="step-icon-box" [ngClass]="'icon-' + step.iconType">
-                  <span [innerHTML]="step.iconSvg"></span>
+                  @switch (step.iconType) {
+                    @case ('blue') {
+                      <!-- Book open for Listen & Read -->
+                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                      </svg>
+                    }
+                    @case ('pink') {
+                      <!-- Bookmark for Understand Deeply -->
+                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path>
+                      </svg>
+                    }
+                    @case ('orange') {
+                      <!-- Message bubble for Answer & Respond -->
+                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path>
+                      </svg>
+                    }
+                    @case ('purple') {
+                      <!-- Sparkles for Grammar Mastery & Fluency -->
+                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path>
+                        <path d="M5 3v4"></path>
+                        <path d="M19 17v4"></path>
+                        <path d="M3 5h4"></path>
+                        <path d="M17 19h4"></path>
+                      </svg>
+                    }
+                  }
                 </div>
                 <span class="step-watermark">{{ step.stepNumber }}</span>
               </div>
@@ -114,6 +143,11 @@ interface Step {
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-shrink: 0;
+
+        svg {
+          display: block;
+        }
 
         &.icon-blue {
           background: #eff6ff;
@@ -133,6 +167,21 @@ interface Step {
         &.icon-purple {
           background: #f5f3ff;
           color: #8b5cf6;
+        }
+      }
+
+      :host-context(html[data-theme='dark']) {
+        .step-icon-box.icon-blue {
+          background: rgba(59, 130, 246, 0.15);
+        }
+        .step-icon-box.icon-pink {
+          background: rgba(236, 72, 153, 0.15);
+        }
+        .step-icon-box.icon-orange {
+          background: rgba(249, 115, 22, 0.15);
+        }
+        .step-icon-box.icon-purple {
+          background: rgba(139, 92, 246, 0.15);
         }
       }
 
@@ -169,12 +218,6 @@ export class HowItWorksComponent {
     {
       stepNumber: '01',
       iconType: 'blue',
-      iconSvg: `
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-        </svg>
-      `,
       title: 'Listen & Read',
       description:
         'Listen to the Main Audio while reading the transcript. Understand the story and lookup new words in context.',
@@ -182,11 +225,6 @@ export class HowItWorksComponent {
     {
       stepNumber: '02',
       iconType: 'pink',
-      iconSvg: `
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path>
-        </svg>
-      `,
       title: 'Understand Deeply',
       description:
         'Listen to the Vocabulary Lesson. Understand new words deeply through English explanations, not translation.',
@@ -194,11 +232,6 @@ export class HowItWorksComponent {
     {
       stepNumber: '03',
       iconType: 'orange',
-      iconSvg: `
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path>
-        </svg>
-      `,
       title: 'Answer & Respond',
       description:
         'Listen to the Mini-Story. AJ Hoge asks easy questions rapidly; you must shout out the answers immediately.',
@@ -206,11 +239,6 @@ export class HowItWorksComponent {
     {
       stepNumber: '04',
       iconType: 'purple',
-      iconSvg: `
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-        </svg>
-      `,
       title: 'Master Grammar',
       description:
         'Listen to Point of View stories. Experience grammar tenses changing naturally without studying rules.',

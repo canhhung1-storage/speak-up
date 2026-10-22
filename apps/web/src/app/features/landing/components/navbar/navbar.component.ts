@@ -51,9 +51,14 @@ import { ThemeService } from '../../../../core/services/theme.service';
             }
           </button>
 
-          <!-- Dashboard CTA Button -->
-          <a routerLink="/courses" class="btn-dashboard">
-            Dashboard <span class="rocket-icon">🚀</span>
+          <!-- Sign In CTA Button -->
+          <a routerLink="/courses" class="btn-signin">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+              <polyline points="10 17 15 12 10 7"></polyline>
+              <line x1="15" y1="12" x2="3" y2="12"></line>
+            </svg>
+            <span>Sign In</span>
           </a>
         </div>
       </div>
@@ -62,9 +67,12 @@ import { ThemeService } from '../../../../core/services/theme.service';
   styles: [
     `
       .navbar-wrapper {
-        position: sticky;
+        position: fixed;
         top: 0;
-        z-index: 50;
+        left: 0;
+        right: 0;
+        width: 100%;
+        z-index: 1000;
         background: var(--nav-bg);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
@@ -139,11 +147,11 @@ import { ThemeService } from '../../../../core/services/theme.service';
         }
       }
 
-      .btn-dashboard {
+      .btn-signin {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        padding: 9px 18px;
+        gap: 8px;
+        padding: 9px 20px;
         border-radius: 10px;
         font-size: 0.9rem;
         font-weight: 600;
@@ -151,16 +159,17 @@ import { ThemeService } from '../../../../core/services/theme.service';
         background: #3b82f6;
         box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
         transition: all 0.2s ease;
+        text-decoration: none;
 
         &:hover {
           background: #2563eb;
           transform: translateY(-1px);
           box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35);
         }
-      }
 
-      .rocket-icon {
-        font-size: 0.85rem;
+        svg {
+          flex-shrink: 0;
+        }
       }
     `,
   ],
