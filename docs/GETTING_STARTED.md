@@ -87,14 +87,14 @@ speakup-web         speakup-web                      "npm run start"          we
 Sau khi các container chạy `Up`, hãy mở trình duyệt web và các công cụ để kiểm tra từng thành phần:
 
 ### 1️⃣ Trải nghiệm Giao diện Web (Angular qua Nginx)
-- **Địa chỉ:** [http://localhost](http://localhost)
+- **Địa chỉ:** [http://localhost:8080](http://localhost:8080)
 - **Kết quả mong đợi:** Xuất hiện màn hình chào mừng **SpeakUp English App** hiện đại với danh sách 6 dịch vụ đang hoạt động.
-- Nginx đã tự động bắt request ở cổng 80 và chuyển tiếp ngầm tới Angular (`:4200`).
+- Nginx đã tự động bắt request ở cổng 8080 và chuyển tiếp ngầm tới Angular (`:4200`).
 
 ---
 
 ### 2️⃣ Kiểm tra Backend API (NestJS qua Nginx)
-- **Địa chỉ:** [http://localhost/api/health](http://localhost/api/health)
+- **Địa chỉ:** [http://localhost:8080/api/health](http://localhost:8080/api/health)
 - **Kết quả mong đợi:** Trả về đoạn JSON thời gian thực:
   ```json
   {

@@ -2,7 +2,7 @@
 # 🚀 SpeakUp Project - Docker Compose Orchestration
 # ==============================================================================
 
-name: speakup
+name: speak-up
 
 services:
   # ----------------------------------------------------------------------------
@@ -151,16 +151,12 @@ services:
 # ------------------------------------------------------------------------------
 volumes:
   postgres_data:
-    name: speakup_postgres_data
   redis_data:
-    name: speakup_redis_data
   rabbitmq_data:
-    name: speakup_rabbitmq_data
 
 # ------------------------------------------------------------------------------
 # NETWORKS (Mạng nội bộ cách ly)
 # ------------------------------------------------------------------------------
 networks:
   speakup-net:
-    name: speakup_network
     driver: bridge

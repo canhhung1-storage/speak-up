@@ -42,8 +42,8 @@ Sau khi khởi động thành công, toàn bộ hệ thống được phân ph�
 
 | Dịch vụ | Địa chỉ URL | Cổng Host | Tài khoản / Thông tin |
 | :--- | :--- | :---: | :--- |
-| **🌐 Web App (Angular)** | [http://localhost](http://localhost) | `80` (Nginx) | Giao diện học tập người dùng |
-| **🚀 Backend API (NestJS)** | [http://localhost/api/health](http://localhost/api/health) | `80` (Nginx) | API trạng thái hệ thống |
+| **🌐 Web App (Angular)** | [http://localhost:8080](http://localhost:8080) | `8080` (Nginx) | Giao diện học tập người dùng |
+| **🚀 Backend API (NestJS)** | [http://localhost:8080/api/health](http://localhost:8080/api/health) | `8080` (Nginx) | API trạng thái hệ thống |
 | **🐰 Quản trị RabbitMQ** | [http://localhost:15672](http://localhost:15672) | `15672` | User: `speakup_rabbit`<br>Pass: `rabbit_secret_pass` |
 | **🐘 PostgreSQL Database** | `localhost:5432` | `5432` | DB: `speakup_db`<br>User: `speakup_user`<br>Pass: `speakup_secret_pass` |
 | **⚡ Redis In-Memory** | `localhost:6379` | `6379` | Pass: `redis_secret_pass` |
