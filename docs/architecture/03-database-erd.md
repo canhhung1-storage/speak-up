@@ -13,7 +13,7 @@ erDiagram
     lessons ||--o{ user_lesson_progress : "được học bởi"
 
     lessons ||--|| lesson_articles : "có 1 bài đọc chính (1:1)"
-    lessons ||--o{ vocabulary_items : "chứa danh sách từ mới (1:N)"
+    lessons ||--o{ lesson_vocabularies : "chứa danh sách từ mới (1:N)"
     lessons ||--o{ lesson_audios : "chứa các audio luyện nghe (1:N)"
 
     users {
@@ -63,7 +63,7 @@ erDiagram
         timestamptz updated_at
     }
 
-    vocabulary_items {
+    lesson_vocabularies {
         uuid id PK
         uuid lesson_id FK "Thuộc bài học nào"
         string word "Từ mới (VD: gorgeous)"
@@ -173,7 +173,7 @@ Dưới đây là giải thích chi tiết mục đích nghiệp vụ, ý nghĩa
 
 ---
 
-### 💡 BẢNG 5: `vocabulary_items` (2. Danh sách Từ vựng trong bài)
+### 💡 BẢNG 5: `lesson_vocabularies` (2. Danh sách Từ vựng trong bài)
 - **Nhiệm vụ:** Lưu chi tiết từng từ mới xuất hiện trong bài đọc, phục vụ người học tra cứu, xem phiên âm IPA và câu ví dụ mẫu.
 
 | Tên Cột | Kiểu dữ liệu | Ràng buộc | Ý nghĩa & Ví dụ thực tế |

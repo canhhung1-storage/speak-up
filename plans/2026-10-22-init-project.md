@@ -11,6 +11,7 @@
 - [x] **Pha 1: Brainstorming** — Hoàn thành thống nhất kiến trúc, sơ đồ hạ tầng, vai trò công nghệ và chốt thiết kế (Gate 1 Passed).
 - [x] **Pha 2: Execute** — Triển khai cấu hình Docker Compose, Nginx, Database init, biến môi trường và cấu trúc thư mục Monorepo cho SpeakUp.
 - [x] **Pha 3: Save Learnings** — Ghi nhận các bài học và quyết định kiến trúc vào `.agent/learnings/` (Đã lưu vào `architecture.md` và `patterns.md`).
+- [x] **Thiết kế Database Schema & ERD** — Bóc tách 7 bảng thực thể chuẩn hóa cho phương pháp học tiếng Anh Effortless English (Main Article, Vocabulary, Mini Story, Commentary, POV).
 
 ---
 
@@ -39,6 +40,12 @@
 - [x] Trích xuất kiến thức kiến trúc 6 container & healthcheck vào `.agent/learnings/architecture.md`
 - [x] Trích xuất quy chuẩn giao tiếp Service Name vào `.agent/learnings/patterns.md`
 
+### Nhóm 4: Thiết kế Cơ sở dữ liệu (Database Schema & ERD)
+- [x] **Task 4.1:** Bóc tách 7 thực thể cốt lõi: `users`, `courses`, `lessons`, `lesson_articles`, `lesson_vocabularies`, `lesson_audios`, `user_lesson_progress`.
+- [x] **Task 4.2:** Bổ sung `slug` cho `lessons` với ràng buộc duy nhất trong khóa học `UNIQUE(course_id, slug)`.
+- [x] **Task 4.3:** Thống nhất đổi tên bảng từ vựng thành `lesson_vocabularies` cho đồng bộ với `lesson_articles` và `lesson_audios`.
+- [x] **Task 4.4:** Hoàn thiện sơ đồ Mermaid ERD và Từ điển Dữ liệu (Data Dictionary) chi tiết tại `docs/architecture/03-database-erd.md`.
+
 ---
 
 ## 📝 3. Quyết định kỹ thuật & Ghi chú (Notes & Decisions)
@@ -46,11 +53,14 @@
   1. Giúp người dùng thực hành học tiếng Anh hàng ngày hiệu quả.
   2. Nền tảng thực chiến để học hỏi công nghệ mới qua phong cách Vibe Coding có kỷ luật.
 - **Tài liệu học tập:** Đã biên soạn cẩm nang chi tiết vai trò của 6 công nghệ (Nginx, RabbitMQ, Redis, Postgres, NestJS, Angular) tại `docs/architecture/02-tech-stack-roles.md`.
-- **Hạ tầng đã sẵn sàng:** Có thể chạy `docker compose up -d` bất kỳ lúc nào để khởi động toàn bộ môi trường.
+- **Hạ tầng đã sẵn sàng:** 6 container đã chạy thực tế trên máy host tại `http://localhost:8080`.
+- **Quy tắc làm việc với Git:** **TUYỆT ĐỐI KHÔNG tự ý commit code**. Chỉ thực hiện `git commit` khi người dùng yêu cầu rõ ràng.
+- **Thiết kế Database linh hoạt:** Hỗ trợ tiến hóa schema thông qua Database Migrations mà không làm mất dữ liệu cũ.
 
 ---
 
 ## ⏭️ 4. Tồn đọng cho buổi tiếp theo (Next Steps / Backlog)
-- [ ] Chạy thử nghiệm `docker compose up -d` trên máy host để kiểm tra giao diện web và dashboard RabbitMQ.
-- [ ] Khởi tạo dự án NestJS thực tế trong `apps/api` (kèm kết nối TypeORM/Prisma tới PostgreSQL và Redis).
-- [ ] Khởi tạo dự án Angular trong `apps/web` (giao diện học tập, micro audio recorder).
+- [ ] Chọn công nghệ ORM (Prisma ORM) cho NestJS backend.
+- [ ] Khởi tạo dự án NestJS chính thức trong `apps/api` và tạo Prisma Schema tương ứng với ERD.
+- [ ] Chạy migration đầu tiên để tạo các bảng trong PostgreSQL.
+- [ ] Viết seed data mẫu ban đầu (1 khóa học, 1 bài học Effortless English với đầy đủ 5 audio/article items).
