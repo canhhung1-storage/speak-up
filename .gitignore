@@ -1,0 +1,120 @@
+# ==============================================================================
+# 🚀 SpeakUp Project - Root .gitignore (Enterprise Standard)
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Môi trường & Bảo mật (Secrets & Environment Variables)
+# TUYỆT ĐỐI KHÔNG commit file chứa password, secret key thực tế
+# ------------------------------------------------------------------------------
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+# Ngoại lệ: Giữ lại file mẫu để dev khác clone về biết cấu hình
+!.env.example
+
+# ------------------------------------------------------------------------------
+# 2. Thư viện phụ thuộc (Dependencies)
+# ------------------------------------------------------------------------------
+node_modules/
+*/node_modules/
+apps/*/node_modules/
+.pnp
+.pnp.js
+.pnpm-store/
+
+# ------------------------------------------------------------------------------
+# 3. Sản phẩm biên dịch & Build Outputs
+# ------------------------------------------------------------------------------
+# NestJS / TypeScript build
+dist/
+*/dist/
+apps/*/dist/
+
+# Angular build & cache
+.angular/
+*/.angular/
+apps/*/dist/
+apps/*/.angular/
+
+# Temporary / Staging builds
+build/
+out/
+.next/
+.cache/
+.nx/cache/
+
+# ------------------------------------------------------------------------------
+# 4. Nhật ký hoạt động & Debug Logs
+# ------------------------------------------------------------------------------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ------------------------------------------------------------------------------
+# 5. Dữ liệu Docker Local & Database Dumps
+# (Ngăn ngừa dữ liệu DB trên máy cá nhân lọt vào Git gây nặng repo)
+# ------------------------------------------------------------------------------
+postgres_data/
+docker/postgres_data/
+redis_data/
+rabbitmq_data/
+*.dump
+*.sql.gz
+
+# ------------------------------------------------------------------------------
+# 6. Kiểm thử & Độ phủ mã nguồn (Testing & Coverage)
+# ------------------------------------------------------------------------------
+coverage/
+*/coverage/
+.nyc_output/
+*.lcov
+
+# ------------------------------------------------------------------------------
+# 7. Trình soạn thảo & IDEs (Editor Directories)
+# ------------------------------------------------------------------------------
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.sublime-project
+*.sublime-workspace
+
+# VS Code (Giữ lại cấu hình extensions/settings khuyến nghị cho team)
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# ------------------------------------------------------------------------------
+# 8. Rác từ Hệ điều hành (OS Generated Files)
+# ------------------------------------------------------------------------------
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Linux
+*~
+.fuse_hidden*
+.directory
