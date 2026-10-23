@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, finalize, shareReplay } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 export interface AuthUser {
@@ -36,6 +36,9 @@ export class AuthService {
   readonly currentUser = signal<AuthUser | null>(this.getStoredUser());
   readonly isAuthenticated = computed(() => !!this.token() && !!this.currentUser());
   readonly isLoading = signal<boolean>(false);
+
+  // In-flight refresh observable to deduplicate concurrent refresh calls
+  private refreshInFlight$: Observable<AuthResponse> | null = null;
 
   private getStoredToken(): string | null {
     if (typeof window === 'undefined') return null;
@@ -135,10 +138,15 @@ export class AuthService {
   }
 
   /**
-   * Request silent token refresh via HttpOnly cookie
+   * Request silent token refresh via HttpOnly cookie.
+   * Concurrency Safe: Uses shareReplay(1) to deduplicate simultaneous 401 refresh calls into a single HTTP request.
    */
   refreshToken(): Observable<AuthResponse> {
-    return this.http
+    if (this.refreshInFlight$) {
+      return this.refreshInFlight$;
+    }
+
+    this.refreshInFlight$ = this.http
       .post<AuthResponse>(
         `${environment.apiUrl}/auth/refresh`,
         {},
@@ -148,7 +156,13 @@ export class AuthService {
         tap((response) => {
           this.setSession(response);
         }),
+        finalize(() => {
+          this.refreshInFlight$ = null;
+        }),
+        shareReplay(1),
       );
+
+    return this.refreshInFlight$;
   }
 
   setSession(response: AuthResponse): void {

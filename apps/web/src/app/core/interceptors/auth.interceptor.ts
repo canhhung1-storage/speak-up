@@ -8,7 +8,9 @@ import { AuthService } from '../services/auth.service';
  * Functional HTTP Interceptor for authentication:
  * 1. Attaches Bearer JWT token to outgoing API requests.
  * 2. Catches 401 Unauthorized errors to automatically perform Silent Refresh via HttpOnly cookie.
- * 3. Retries original request with new Access Token or redirects to /login if refresh fails.
+ * 3. Prevents infinite retry loops via 'X-Auth-Retry' header marker.
+ * 4. Deduplicates concurrent refresh attempts via AuthService.refreshToken() in-flight sharing.
+ * 5. Retries original request with new Access Token or redirects to /login if refresh fails.
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
@@ -28,18 +30,22 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      // If 401 occurs and is NOT an auth attempt itself, attempt silent refresh
+      const isRetry = req.headers.has('X-Auth-Retry');
+
+      // If 401 occurs, has not been retried, and is NOT an auth attempt itself, attempt silent refresh
       if (
         error.status === 401 &&
+        !isRetry &&
         !req.url.includes('/auth/refresh') &&
         !req.url.includes('/auth/google')
       ) {
         return authService.refreshToken().pipe(
           switchMap((refreshRes) => {
-            // Retry original failed request with newly obtained access token
+            // Retry original failed request with newly obtained access token and retry marker
             const retryReq = req.clone({
               setHeaders: {
                 Authorization: `Bearer ${refreshRes.accessToken}`,
+                'X-Auth-Retry': 'true',
               },
             });
             return next(retryReq);

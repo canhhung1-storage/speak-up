@@ -52,8 +52,9 @@ import {
           LessonAudio,
           UserLessonProgress,
         ],
-        synchronize: true, // Tự động tạo bảng & đồng bộ cột trong môi trường dev
-        logging: true,
+        // Chỉ tự động đồng bộ schema trong môi trường development, cấm chạy trên production tránh mất mát dữ liệu
+        synchronize: configService.get<string>('NODE_ENV') !== 'production',
+        logging: configService.get<string>('NODE_ENV') !== 'production',
       }),
     }),
   ],

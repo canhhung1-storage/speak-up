@@ -11,6 +11,12 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
 
+  // Trust first reverse proxy (Nginx Gateway) so req.ip and rate-limiting identify real client IPs
+  const expressApp = app.getHttpAdapter().getInstance();
+  if (typeof expressApp?.set === 'function') {
+    expressApp.set('trust proxy', 1);
+  }
+
   // 1. Security Headers via Helmet
   app.use(
     helmet({
