@@ -52,6 +52,11 @@ export class AuthService {
       throw new UnauthorizedException('Google account does not provide an email address');
     }
 
+    if (!payload.email_verified) {
+      this.logger.warn(`Google token email is not verified: ${payload.email}`);
+      throw new UnauthorizedException('Google email address is not verified');
+    }
+
     const { email, sub: googleId, name, picture } = payload;
     this.logger.log(`Google token verified successfully for email: ${email}`);
 
