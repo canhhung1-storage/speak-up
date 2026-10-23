@@ -4,6 +4,9 @@ import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const cookieParser = require('cookie-parser');
+
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
@@ -16,10 +19,13 @@ async function bootstrap() {
     }),
   );
 
-  // 2. Global API prefix
+  // 2. Cookie parser for HttpOnly session cookies
+  app.use(cookieParser());
+
+  // 3. Global API prefix
   app.setGlobalPrefix('api');
 
-  // 3. CORS Whitelisting
+  // 4. CORS Whitelisting
   const allowedOrigins = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',').map((origin) => origin.trim())
     : [
@@ -41,10 +47,10 @@ async function bootstrap() {
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
   });
 
-  // 4. Global exception filter & input validation
+  // 5. Global exception filter & input validation
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalPipes(
     new ValidationPipe({

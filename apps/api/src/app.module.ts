@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
+import { RedisModule } from './common/redis/redis.module';
 import { CoursesModule } from './modules/courses/courses.module';
 import { LessonsModule } from './modules/lessons/lessons.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -28,6 +29,7 @@ import {
         limit: 100, // 100 requests per minute globally
       },
     ]),
+    RedisModule,
     AuthModule,
     CoursesModule,
     LessonsModule,

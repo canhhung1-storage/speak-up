@@ -14,6 +14,7 @@ export interface AuthUser {
 
 export interface AuthResponse {
   accessToken: string;
+  refreshToken?: string;
   tokenType: string;
   expiresIn: number;
   user: AuthUser;
@@ -117,11 +118,32 @@ export class AuthService {
   }
 
   /**
-   * Exchange Google ID Token with Backend API
+   * Exchange Google ID Token with Backend API (Sets HttpOnly refresh cookie)
    */
   loginWithGoogle(idToken: string): Observable<AuthResponse> {
     return this.http
-      .post<AuthResponse>(`${environment.apiUrl}/auth/google`, { idToken })
+      .post<AuthResponse>(
+        `${environment.apiUrl}/auth/google`,
+        { idToken },
+        { withCredentials: true },
+      )
+      .pipe(
+        tap((response) => {
+          this.setSession(response);
+        }),
+      );
+  }
+
+  /**
+   * Request silent token refresh via HttpOnly cookie
+   */
+  refreshToken(): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(
+        `${environment.apiUrl}/auth/refresh`,
+        {},
+        { withCredentials: true },
+      )
       .pipe(
         tap((response) => {
           this.setSession(response);
@@ -139,6 +161,14 @@ export class AuthService {
   }
 
   logout(): void {
+    // Notify backend to purge session in Redis and clear HttpOnly cookie
+    this.http
+      .post(`${environment.apiUrl}/auth/logout`, {}, { withCredentials: true })
+      .subscribe({
+        next: () => {},
+        error: () => {},
+      });
+
     if (typeof window !== 'undefined') {
       localStorage.removeItem(this.TOKEN_KEY);
       localStorage.removeItem(this.USER_KEY);

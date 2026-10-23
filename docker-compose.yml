@@ -73,7 +73,7 @@ services:
       retries: 5
 
   # ----------------------------------------------------------------------------
-  # 4. NESTJS BACKEND API SERVICE
+  # 4. NESTJS BACKEND API SERVICE (Internal: 3000 -> Gateway Nginx)
   # ----------------------------------------------------------------------------
   api:
     build:
@@ -100,8 +100,6 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       NODE_TLS_REJECT_UNAUTHORIZED: "0"
-    ports:
-      - "${API_PORT:-3000}:3000"
     volumes:
       - ./apps/api:/app
     depends_on:
@@ -115,7 +113,7 @@ services:
       - speakup-net
 
   # ----------------------------------------------------------------------------
-  # 5. ANGULAR FRONTEND WEB SERVICE
+  # 5. ANGULAR FRONTEND WEB SERVICE (Internal: 4200 -> Gateway Nginx)
   # ----------------------------------------------------------------------------
   web:
     build:
@@ -127,8 +125,6 @@ services:
       WEB_PORT: ${WEB_PORT:-4200}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       NG_CLI_ANALYTICS: "false"
-    ports:
-      - "${WEB_PORT:-4200}:4200"
     volumes:
       - ./apps/web:/app
       - /app/node_modules
@@ -136,7 +132,7 @@ services:
       - speakup-net
 
   # ----------------------------------------------------------------------------
-  # 6. NGINX REVERSE PROXY & GATEWAY
+  # 6. NGINX REVERSE PROXY & GATEWAY (Single Public Entrypoint: :8080)
   # ----------------------------------------------------------------------------
   nginx:
     build:
@@ -145,7 +141,7 @@ services:
     container_name: speakup-nginx
     restart: unless-stopped
     ports:
-      - "${NGINX_PORT:-80}:80"
+      - "${NGINX_PORT:-8080}:80"
     depends_on:
       api:
         condition: service_started

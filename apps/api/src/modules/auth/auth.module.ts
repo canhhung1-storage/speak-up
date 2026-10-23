@@ -22,7 +22,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
           'speakup_super_secret_jwt_key_2026',
         signOptions: {
           expiresIn:
-            configService.get<string>('JWT_EXPIRES_IN') || '7d',
+            configService.get<string>('JWT_ACCESS_EXPIRES_IN') || '15m',
         },
       }),
     }),

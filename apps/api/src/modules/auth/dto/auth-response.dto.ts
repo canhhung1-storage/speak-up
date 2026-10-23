@@ -8,6 +8,7 @@ export class AuthUserDto {
 
 export class AuthResponseDto {
   accessToken: string;
+  refreshToken?: string; // Optional in response body (for Mobile App / testing)
   tokenType: string;
   expiresIn: number;
   user: AuthUserDto;
