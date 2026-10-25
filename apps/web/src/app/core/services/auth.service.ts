@@ -35,6 +35,7 @@ export class AuthService {
   readonly token = signal<string | null>(this.getStoredToken());
   readonly currentUser = signal<AuthUser | null>(this.getStoredUser());
   readonly isAuthenticated = computed(() => !!this.token() && !!this.currentUser());
+  readonly isAdmin = computed(() => this.currentUser()?.role === 'ADMIN');
   readonly isLoading = signal<boolean>(false);
 
   // In-flight refresh observable to deduplicate concurrent refresh calls

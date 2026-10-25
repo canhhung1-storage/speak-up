@@ -52,3 +52,18 @@
   2. **Nguyên nhân gốc rễ:** Mạng doanh nghiệp hoặc VPN sử dụng tường lửa kiểm tra gói tin SSL (SSL/TLS Inspection), khiến Node.js trong container Alpine không tìm thấy chứng chỉ Root CA nội bộ trong kho Mozilla CA mặc định.
   3. **Giải pháp triệt để:** Bổ sung biến môi trường `NODE_TLS_REJECT_UNAUTHORIZED="0"` trong cấu hình môi trường phát triển (Development) tại `docker-compose.yml`.
 - **Files liên quan**: `docker-compose.yml`, `apps/api/src/modules/auth/auth.service.ts`
+
+
+### [Admin Studio] Lỗi ValidationPipe (forbidNonWhitelisted) khi đồng bộ dữ liệu Lesson, Article, Vocabulary và Audio
+- **Ngày**: 2026-10-25
+- **Task**: Xây dựng Admin Studio biên tập bài học 3 tab cho SpeakUp CMS
+- **Chi tiết**:
+  1. **Hiện tượng:** Khi ấn lưu bài học trên Admin Studio, API trả về 400 Bad Request với các lỗi:
+     `property durationMinutes should not exist`, `article.property contentHtml should not exist`, `article.content must be a string`, `vocabularies.0.property exampleEn should not exist`, v.v.
+  2. **Nguyên nhân gốc rễ:** 
+     - NestJS cấu hình `ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })`. Khi client gửi lên các field không có trong DTO (`durationMinutes` thay vì `description`, `contentHtml` thay vì `content`, `exampleEn/exampleVi` thay vì `exampleSentence/definitionEn`, `transcriptHtml` thay vì `transcript`), server sẽ lập tức từ chối request.
+     - `CreateLessonDto` ban đầu chỉ có các trường cơ bản của Lesson mà thiếu quan hệ lồng nhau (`article`, `vocabularies`, `audios`).
+  3. **Giải pháp triệt để:**
+     - Bổ sung `article`, `vocabularies`, `audios` vào `CreateLessonDto` và triển khai TypeORM transaction trong cả `create` và `update` của `AdminLessonsService`.
+     - Đồng bộ hóa toàn bộ Model Frontend (`AdminArticle`, `AdminVocabulary`, `AdminAudio`, `AdminLessonDetail`) với DTO Backend.
+- **Files liên quan**: `apps/api/src/modules/admin/dto/`, `apps/api/src/modules/admin/services/admin-lessons.service.ts`, `apps/web/src/app/core/services/admin.service.ts`, `apps/web/src/app/features/admin/lessons/lesson-editor.component.ts`

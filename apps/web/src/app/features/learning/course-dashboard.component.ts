@@ -35,6 +35,15 @@ import { AuthService } from '../../core/services/auth.service';
         </div>
 
         <div class="dashboard-actions">
+          @if (authService.isAdmin()) {
+            <a routerLink="/admin" class="btn-action btn-admin" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: #ffffff; border: none;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"/>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+              </svg>
+              <span>Vào Quản Trị CMS</span>
+            </a>
+          }
           <a routerLink="/" class="btn-action btn-home">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="m12 19-7-7 7-7"/>

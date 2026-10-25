@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
@@ -17,11 +18,12 @@ async function bootstrap() {
     expressApp.set('trust proxy', 1);
   }
 
-  // 1. Security Headers via Helmet
+  // 1. Security Headers via Helmet (relaxed CSP for Swagger UI)
   app.use(
     helmet({
       crossOriginResourcePolicy: { policy: 'cross-origin' }, // Support cross-origin audio/static media
       crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' }, // Support Google GIS popup
+      contentSecurityPolicy: false, // Cho phép Swagger UI tải CSS/JS trực quan
     }),
   );
 
@@ -66,9 +68,49 @@ async function bootstrap() {
     }),
   );
 
+  // 6. Swagger / OpenAPI Documentation
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('SpeakUp API Documentation')
+    .setDescription(
+      'Hệ thống REST API cho Nền tảng luyện phản xạ Effortless English SpeakUp (Web & Mobile App)',
+    )
+    .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'Authorization',
+        description: 'Nhập Access Token (JWT)',
+        in: 'header',
+      },
+      'bearer',
+    )
+    .addCookieAuth('refreshToken', {
+      type: 'apiKey',
+      in: 'cookie',
+      name: 'refreshToken',
+      description: 'HttpOnly Refresh Token Cookie (dành cho Web)',
+    })
+    .addTag('Health', 'Kiểm tra trạng thái hoạt động của hệ thống')
+    .addTag('Auth', 'Xác thực Google OAuth 2.0, cấp phát & xoay vòng Refresh Token')
+    .addTag('Learner - Courses', 'Danh sách khóa học và bài học công khai dành cho học viên')
+    .addTag('Admin - Courses', 'Quản trị viên CRUD danh mục khóa học')
+    .addTag('Admin - Lessons & Studio', 'Quản trị viên soạn thảo bài học, bài đọc, từ vựng và audio phản xạ')
+    .build();
+
+  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('api/docs', app, swaggerDocument, {
+    customSiteTitle: 'SpeakUp API Docs',
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  });
+
   const port = parseInt(process.env.API_PORT || '3000', 10);
   await app.listen(port, '0.0.0.0');
   logger.log(`🚀 [SpeakUp API] NestJS Server is running on: http://0.0.0.0:${port}/api`);
+  logger.log(`📚 [Swagger Docs] Interactive API Documentation available at: http://0.0.0.0:${port}/api/docs`);
 }
 
 bootstrap().catch((err) => {

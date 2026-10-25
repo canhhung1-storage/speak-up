@@ -10,6 +10,12 @@ import {
   HttpStatus,
   UnauthorizedException,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
@@ -18,6 +24,7 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AuthResponseDto, AuthUserDto } from './dto/auth-response.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -29,6 +36,15 @@ export class AuthController {
   @Post('google')
   @HttpCode(HttpStatus.OK)
   @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @ApiOperation({
+    summary: 'Đăng nhập bằng Google ID Token (Hỗ trợ Web Cookie & Mobile Body)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Xác thực thành công, cấp cặp Access Token và Refresh Token',
+    type: AuthResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Google ID Token không hợp lệ hoặc đã hết hạn' })
   async googleAuth(
     @Body() dto: GoogleLoginDto,
     @Res({ passthrough: true }) res: Response,
@@ -50,6 +66,18 @@ export class AuthController {
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @Throttle({ default: { limit: 30, ttl: 60000 } })
+  @ApiOperation({
+    summary: 'Làm mới Access Token & Xoay vòng Refresh Token (Silent Refresh)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Cấp token mới thành công',
+    type: AuthResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Refresh token hết hạn, bị thu hồi hoặc phát hiện tái sử dụng',
+  })
   async refreshTokens(
     @Req() req: Request,
     @Body() dto: RefreshTokenDto,
@@ -76,6 +104,8 @@ export class AuthController {
    */
   @Post('logout')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Đăng xuất tài khoản, thu hồi phiên trong Redis & xóa cookie' })
+  @ApiResponse({ status: 200, description: 'Đăng xuất thành công' })
   async logout(
     @Req() req: Request,
     @Body() dto: RefreshTokenDto,
@@ -96,6 +126,14 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Lấy thông tin tài khoản người dùng hiện tại' })
+  @ApiResponse({
+    status: 200,
+    description: 'Thông tin hồ sơ người dùng',
+    type: AuthUserDto,
+  })
+  @ApiResponse({ status: 401, description: 'Chưa đăng nhập hoặc token không hợp lệ' })
   async getCurrentUser(@Req() req: any): Promise<AuthUserDto> {
     return this.authService.getMe(req.user.id);
   }

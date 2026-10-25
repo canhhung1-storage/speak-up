@@ -1,0 +1,349 @@
+.studio-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+// --- Top Action Bar ---
+.studio-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 1rem 1.5rem;
+  box-shadow: var(--card-shadow);
+  position: sticky;
+  top: 84px;
+  z-index: 40;
+  backdrop-filter: blur(12px);
+
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-surface-elevated);
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: all 0.2s ease;
+
+      &:hover {
+        color: var(--text-primary);
+        border-color: #3b82f6;
+      }
+    }
+
+    .studio-meta {
+      h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        color: var(--text-primary);
+        margin-bottom: 2px;
+      }
+
+      .course-ref {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+      }
+    }
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    .btn-save {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      padding: 0.7rem 1.5rem;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+      transition: all 0.2s ease;
+
+      &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+// --- Basic Lesson Meta Card ---
+.meta-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: var(--card-shadow);
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1fr 1fr;
+    gap: 1.25rem;
+
+    @media (max-width: 900px) {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+// --- Tabs Card ---
+.tabs-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+
+  .tabs-nav {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--bg-surface-elevated);
+    overflow-x: auto;
+
+    .tab-btn {
+      padding: 1.1rem 1.6rem;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+
+      svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      .badge-counter {
+        font-size: 0.72rem;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        padding: 2px 7px;
+        border-radius: 9999px;
+      }
+
+      &:hover {
+        color: var(--text-primary);
+      }
+
+      &.active {
+        color: #3b82f6;
+        border-bottom-color: #3b82f6;
+        background-color: var(--bg-surface);
+
+        .badge-counter {
+          background: rgba(59, 130, 246, 0.15);
+          color: #3b82f6;
+          border-color: rgba(59, 130, 246, 0.3);
+        }
+      }
+    }
+  }
+
+  .tab-content {
+    padding: 1.75rem;
+
+    @media (max-width: 640px) {
+      padding: 1rem;
+    }
+  }
+}
+
+// --- Form Elements Shared ---
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+
+  label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  input[type="text"],
+  input[type="number"],
+  select,
+  textarea {
+    background-color: var(--bg-surface-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.65rem 0.9rem;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+  }
+
+  .helper-text {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+}
+
+// --- Audio Tester Box ---
+.audio-tester {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin-top: 0.5rem;
+
+  audio {
+    flex: 1;
+    height: 36px;
+    outline: none;
+  }
+}
+
+// --- Vocabulary Studio List ---
+.studio-item-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+
+  .item-card {
+    background-color: var(--bg-surface-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: rgba(59, 130, 246, 0.4);
+    }
+
+    .item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      .item-badge {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #3b82f6;
+        background: rgba(59, 130, 246, 0.12);
+        padding: 3px 8px;
+        border-radius: 6px;
+      }
+
+      .btn-remove {
+        background: none;
+        border: none;
+        color: #ef4444;
+        cursor: pointer;
+        padding: 0.3rem 0.6rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+
+        &:hover {
+          background: rgba(239, 68, 68, 0.1);
+        }
+      }
+    }
+
+    .vocab-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 2fr;
+      gap: 1rem;
+
+      @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .examples-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+
+      @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+      }
+    }
+  }
+
+  .btn-add-item {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--bg-surface);
+    border: 2px dashed var(--border-color);
+    border-radius: 10px;
+    padding: 0.85rem 1.5rem;
+    color: #3b82f6;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: #3b82f6;
+      background-color: rgba(59, 130, 246, 0.05);
+    }
+  }
+}
+
+// --- Audio Track Card ---
+.audio-track-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 2fr 1fr;
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}

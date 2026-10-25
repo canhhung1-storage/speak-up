@@ -8,6 +8,7 @@ import { RedisModule } from './common/redis/redis.module';
 import { CoursesModule } from './modules/courses/courses.module';
 import { LessonsModule } from './modules/lessons/lessons.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { AdminModule } from './modules/admin/admin.module';
 import {
   User,
   Course,
@@ -33,6 +34,7 @@ import {
     AuthModule,
     CoursesModule,
     LessonsModule,
+    AdminModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
