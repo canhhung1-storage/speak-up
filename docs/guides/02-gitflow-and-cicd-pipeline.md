@@ -40,6 +40,32 @@ gitGraph
 | **`feature/*`** | `develop` | `develop` | Tạm thời (Xóa sau khi merge) | **Phát triển tính năng mới**.<br>• Quy tắc đặt tên: `feature/<scope>-<kebab-case>`.<br>• Ví dụ: `feature/web-learning-workspace`, `feature/api-srs-spaced-repetition`. |
 | **`hotfix/*`** | `master` | `master` & `develop` | Tạm thời (Xóa sau khi merge) | **Vá lỗi khẩn cấp trên Production**.<br>• Dùng khi phát hiện lỗi nghiêm trọng trên production cần xử lý ngay mà không chờ chu kỳ phát hành mới. |
 
+### 1.2. Sơ Đồ Vòng Đời Code Từ Local Lên Production (End-to-End Workflow)
+
+```mermaid
+flowchart TD
+    A["Local Work: code trên feature/* hoặc develop"] --> B["Chạy kiểm tra tại máy: npm run lint & build"]
+    B -->|"OK"| C["Push code lên nhánh develop: git push origin develop"]
+    C --> D["GitHub Actions tự động kích hoạt CI Pipeline"]
+    
+    subgraph CI ["GitHub Actions CI Quality Gate"]
+        D --> D1["Backend: TypeScript Compilation (nest build)"]
+        D --> D2["Frontend: ESLint Check (ng lint)"]
+        D --> D3["Frontend: Production Build (ng build --configuration production)"]
+    end
+    
+    D1 & D2 & D3 --> E{"Tất cả Jobs Xanh (Pass)?"}
+    E -->|"❌ Bị lỗi"| F["Báo đỏ trên GitHub + Sửa lỗi tại Local và push lại"]
+    F --> C
+    E -->|"✅ Thành công"| G["Tạo Pull Request trên GitHub: develop ➔ master"]
+    
+    G --> H["Kiểm tra trạng thái CI tích xanh trên giao diện PR"]
+    H --> I["Review mã nguồn & Phê duyệt (Approval)"]
+    I --> J["Nhấn nút 'Merge pull request'"]
+    J --> K["Nhánh 'master' cập nhật phiên bản mới an toàn 100%"]
+    K --> L["(Tương lai) Kích hoạt CD tự động triển khai lên VPS Production"]
+```
+
 ---
 
 ## ⚙️ 2. Kiến Trúc Đường Ống CI/CD (GitHub Actions Pipeline)
