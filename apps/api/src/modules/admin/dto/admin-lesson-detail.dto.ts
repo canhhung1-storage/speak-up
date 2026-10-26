@@ -74,6 +74,9 @@ export class AdminLessonSummaryDto {
   @ApiProperty()
   courseId: string;
 
+  @ApiPropertyOptional()
+  courseSlug?: string;
+
   @ApiProperty()
   title: string;
 

@@ -131,7 +131,7 @@ import { AdminService, AdminCourse } from '../../../core/services/admin.service'
                 <td>
                   <div class="actions-cell" style="justify-content: flex-end;">
                     <a
-                      [routerLink]="['/admin/courses', course.id, 'lessons']"
+                      [routerLink]="['/admin/courses', course.slug, 'lessons']"
                       class="btn-action btn-lessons"
                       title="Quản lý danh sách bài học"
                     >

@@ -7,6 +7,9 @@ import {
   CourseDetailResponseDto,
 } from './dto/course-response.dto';
 
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 @Injectable()
 export class CoursesService {
   private readonly logger = new Logger(CoursesService.name);
@@ -42,13 +45,16 @@ export class CoursesService {
   }
 
   /**
-   * Lấy chi tiết khóa học theo slug kèm danh sách bài học
+   * Lấy chi tiết khóa học theo slug (hoặc UUID fallback) kèm danh sách bài học
    */
-  async findBySlug(slug: string): Promise<CourseDetailResponseDto> {
-    this.logger.log(`Fetching course details for slug: ${slug}`);
+  async findBySlug(slugOrId: string): Promise<CourseDetailResponseDto> {
+    this.logger.log(`Fetching course details for identifier: ${slugOrId}`);
 
+    const isUuid = UUID_REGEX.test(slugOrId);
     const course = await this.courseRepository.findOne({
-      where: { slug, isPublished: true },
+      where: isUuid
+        ? { id: slugOrId, isPublished: true }
+        : { slug: slugOrId, isPublished: true },
       relations: ['lessons'],
       order: {
         lessons: {
@@ -58,7 +64,7 @@ export class CoursesService {
     });
 
     if (!course) {
-      throw new NotFoundException(`Course with slug '${slug}' not found`);
+      throw new NotFoundException(`Course '${slugOrId}' not found`);
     }
 
     return {

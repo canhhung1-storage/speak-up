@@ -43,16 +43,18 @@
 
 ### ⏳ Nhóm 2: Công việc tồn đọng cần làm tiếp hôm nay (PENDING / IN PROGRESS)
 
-#### 🔹 Pha 1: Cổng Khóa Học Học Viên (Learner Course Dashboard)
-- [ ] **Task 2.1:** Tạo `LearnerService` tại `apps/web/src/app/core/services/learner.service.ts`:
+#### 🔹 Pha 1: Cổng Khóa Học Học Viên (Learner Course Dashboard - ĐÃ HOÀN THÀNH ✅)
+- [x] **Task 2.1:** Tạo `LearnerService` tại `apps/web/src/app/core/services/learner.service.ts`:
   - `getCourses()` ➔ `GET /api/courses` (Danh sách khóa học đã xuất bản).
   - `getCourseBySlug(slug)` ➔ `GET /api/courses/:slug` (Chi tiết khóa học & danh sách bài học).
   - `getLessonDetail(courseSlug, lessonSlug)` ➔ `GET /api/courses/:courseSlug/lessons/:lessonSlug` (Đầy đủ article, vocabularies, audios).
-- [ ] **Task 2.2:** Nâng cấp [course-dashboard.component.ts](file:///d:/MY_PROJECT/speak-up/apps/web/src/app/features/learning/course-dashboard.component.ts) (`/courses`):
-  - Grid danh sách khóa học thực tế: Thumbnail, Tiêu đề, Cấp độ, Số bài học, Nút "Bắt đầu học".
+- [x] **Task 2.2:** Nâng cấp [course-dashboard.component.ts](file:///d:/MY_PROJECT/speak-up/apps/web/src/app/features/learning/course-dashboard.component.ts) (`/courses`):
+  - Grid danh sách khóa học thực tế: Thumbnail, Tiêu đề, Cấp độ, Số bài học, Nút "Xem bài học".
+  - Drawer/Modal xem lộ trình các bài học của từng khóa học và nút "Học ngay".
+  - Bộ lọc khóa học theo cấp độ (Tất cả, Cơ bản, Trung cấp, Nâng cao).
   - Xử lý đủ 3 trạng thái: Skeleton loading, Error state (Retry button), Empty state.
 
-#### 🔹 Pha 2: Không Gian Học Tập Tương Tác Cốt Lõi (Learning Workspace Player)
+#### 🔹 Pha 2: Không Gian Học Tập Tương Tác Cốt Lõi (Learning Workspace Player - ĐANG THỰC HIỆN 🟡)
 - [ ] **Task 2.3:** Khai báo route `/courses/:courseSlug/lessons/:lessonSlug` trong `apps/web/src/app/app.routes.ts` (gắn `authGuard`).
 - [ ] **Task 2.4:** Xây dựng `LessonWorkspaceComponent` với layout 2 cột:
   - Sidebar danh sách bài học trong khóa học để chuyển bài nhanh.
@@ -61,8 +63,27 @@
     - 💡 **Tab 2: Từ vựng & Flashcard 3D:** Danh sách từ vựng kèm phát âm âm thanh độc lập, chế độ Flashcard lật mặt trước/sau 3D.
     - 🎧 **Tab 3: Trình phát Audio Phản Xạ (Audio Reflex Player):** Đổi track Main Story/Mini-Story/POV, chỉnh tốc độ phát (`0.75x`, `1.0x`, `1.25x`), tua lại 5s.
 
-#### 🔹 Pha 3: Theo Dõi & Đồng Bộ Tiến Độ (Progress Tracking)
-- [ ] **Task 2.5:** Kết nối API ghi nhận tiến độ khi học viên hoàn thành bài học và hiển thị % hoàn thành trên Dashboard.
+#### 🔹 Pha 3: Nâng Cấp Admin CMS — Kéo Thả Sắp Xếp Thứ Tự Bài Học (Drag & Drop Reordering - ĐÃ HOÀN THÀNH ✅)
+- [x] **Task 2.5 (Backend):** Thêm endpoint `PATCH /api/admin/courses/:courseId/lessons/reorder` trong `AdminLessonsController` và `AdminLessonsService`:
+  - Nhận mảng các bài học kèm thứ tự mới: `[lessonId1, lessonId2, ...]`.
+  - Thực thi cập nhật hàng loạt trong một Database Transaction (ACID) an toàn, trả về danh sách bài học sắp xếp mới.
+- [x] **Task 2.6 (Frontend Admin):** Tích hợp tính năng kéo thả vào [lesson-list.component.ts](file:///d:/MY_PROJECT/speak-up/apps/web/src/app/features/admin/lessons/lesson-list.component.ts):
+  - Cài đặt `@angular/cdk@18` và import `DragDropModule`, `CdkDragDrop`, `moveItemInArray`.
+  - Bổ sung cột tay cầm kéo thả (Drag Handle `⋮⋮`) ở đầu mỗi hàng bài học.
+  - Hiệu ứng kéo thả mượt mà (smooth reorder animation, preview hàng khi di chuột).
+  - Tự động đánh lại số thứ tự hiển thị `#1`, `#2`, `#3` trực quan ngay khi thả chuột (Optimistic UI) và gửi API lưu DB kèm thông báo trạng thái `Đang lưu...` / `✓ Đã lưu thứ tự`.
+
+#### 🔹 Pha 4: Chuẩn Hóa Đường Dẫn SEO Thân Thiện Bằng Slug (Slug-Based Routing - ĐÃ HOÀN THÀNH ✅)
+- [x] **Task 2.7 (Backend Hybrid Lookup):** Nâng cấp `AdminCoursesService`, `AdminLessonsService`, `CoursesService`, và `LessonsService` hỗ trợ tìm kiếm linh hoạt theo cả **Slug** (`flow-english`, `baseball-pig`) và **UUID** để không bao giờ bị gãy link cũ, xử lý triệt để khác biệt kiểu dữ liệu PostgreSQL (UUID vs VARCHAR).
+- [x] **Task 2.8 (Frontend URL Refactoring):** Chuyển đổi toàn bộ route Admin và Learner sang dạng Slug thân thiện:
+  - Danh sách bài học Admin: `/admin/courses/:courseSlug/lessons`
+  - Tạo bài học mới: `/admin/courses/:courseSlug/lessons/create`
+  - Chỉnh sửa bài học: `/admin/courses/:courseSlug/lessons/:lessonSlug/edit`
+  - Phòng học Learner: `/courses/:courseSlug/lessons/:lessonSlug`
+  - Đảm bảo 0 lint errors, 0 lint warnings và 0 build warnings.
+
+#### 🔹 Pha 5: Theo Dõi & Đồng Bộ Tiến Độ (Progress Tracking)
+- [ ] **Task 2.9:** Kết nối API ghi nhận tiến độ khi học viên hoàn thành bài học và hiển thị % hoàn thành trên Dashboard.
 
 ---
 

@@ -60,6 +60,7 @@ export interface AdminAudio {
 export interface AdminLessonDetail {
   id: string;
   courseId: string;
+  courseSlug?: string;
   title: string;
   slug: string;
   description?: string;
@@ -95,60 +96,87 @@ export class AdminService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = '/api/admin';
 
-  // --- Course APIs ---
+  // --- Course APIs (Support both ID and Slug) ---
   getCourses(): Observable<AdminCourse[]> {
     return this.http.get<AdminCourse[]>(`${this.baseUrl}/courses`);
   }
 
-  getCourse(id: string): Observable<AdminCourse> {
-    return this.http.get<AdminCourse>(`${this.baseUrl}/courses/${id}`);
+  getCourse(idOrSlug: string): Observable<AdminCourse> {
+    return this.http.get<AdminCourse>(`${this.baseUrl}/courses/${idOrSlug}`);
   }
 
   createCourse(dto: CreateCourseDto): Observable<AdminCourse> {
     return this.http.post<AdminCourse>(`${this.baseUrl}/courses`, dto);
   }
 
-  updateCourse(id: string, dto: UpdateCourseDto): Observable<AdminCourse> {
-    return this.http.put<AdminCourse>(`${this.baseUrl}/courses/${id}`, dto);
+  updateCourse(idOrSlug: string, dto: UpdateCourseDto): Observable<AdminCourse> {
+    return this.http.put<AdminCourse>(`${this.baseUrl}/courses/${idOrSlug}`, dto);
   }
 
-  toggleCoursePublish(id: string, isPublished: boolean): Observable<AdminCourse> {
-    return this.http.patch<AdminCourse>(`${this.baseUrl}/courses/${id}/publish`, {
+  toggleCoursePublish(idOrSlug: string, isPublished: boolean): Observable<AdminCourse> {
+    return this.http.patch<AdminCourse>(`${this.baseUrl}/courses/${idOrSlug}/publish`, {
       isPublished,
     });
   }
 
-  deleteCourse(id: string): Observable<{ success: boolean; message: string }> {
+  deleteCourse(idOrSlug: string): Observable<{ success: boolean; message: string }> {
     return this.http.delete<{ success: boolean; message: string }>(
-      `${this.baseUrl}/courses/${id}`,
+      `${this.baseUrl}/courses/${idOrSlug}`,
     );
   }
 
-  // --- Lesson APIs ---
-  getLessonsByCourse(courseId: string): Observable<AdminLessonDetail[]> {
+  // --- Lesson APIs (Support both ID and Slug) ---
+  getLessonsByCourse(courseIdOrSlug: string): Observable<AdminLessonDetail[]> {
     return this.http.get<AdminLessonDetail[]>(
-      `${this.baseUrl}/courses/${courseId}/lessons`,
+      `${this.baseUrl}/courses/${courseIdOrSlug}/lessons`,
     );
   }
 
-  getLesson(id: string): Observable<AdminLessonDetail> {
-    return this.http.get<AdminLessonDetail>(`${this.baseUrl}/lessons/${id}`);
+  getLesson(idOrSlug: string, courseIdOrSlug?: string): Observable<AdminLessonDetail> {
+    if (courseIdOrSlug) {
+      return this.http.get<AdminLessonDetail>(
+        `${this.baseUrl}/courses/${courseIdOrSlug}/lessons/${idOrSlug}`,
+      );
+    }
+    return this.http.get<AdminLessonDetail>(`${this.baseUrl}/lessons/${idOrSlug}`);
   }
 
-  createLesson(courseId: string, dto: CreateLessonDto): Observable<AdminLessonDetail> {
+  createLesson(courseIdOrSlug: string, dto: CreateLessonDto): Observable<AdminLessonDetail> {
     return this.http.post<AdminLessonDetail>(
-      `${this.baseUrl}/courses/${courseId}/lessons`,
+      `${this.baseUrl}/courses/${courseIdOrSlug}/lessons`,
       dto,
     );
   }
 
-  updateLesson(id: string, dto: UpdateLessonDto): Observable<AdminLessonDetail> {
-    return this.http.put<AdminLessonDetail>(`${this.baseUrl}/lessons/${id}`, dto);
+  updateLesson(
+    idOrSlug: string,
+    dto: UpdateLessonDto,
+    courseIdOrSlug?: string,
+  ): Observable<AdminLessonDetail> {
+    if (courseIdOrSlug) {
+      return this.http.put<AdminLessonDetail>(
+        `${this.baseUrl}/courses/${courseIdOrSlug}/lessons/${idOrSlug}`,
+        dto,
+      );
+    }
+    return this.http.put<AdminLessonDetail>(`${this.baseUrl}/lessons/${idOrSlug}`, dto);
   }
 
-  deleteLesson(id: string): Observable<{ success: boolean; message: string }> {
+  deleteLesson(idOrSlug: string, courseIdOrSlug?: string): Observable<{ success: boolean; message: string }> {
+    if (courseIdOrSlug) {
+      return this.http.delete<{ success: boolean; message: string }>(
+        `${this.baseUrl}/courses/${courseIdOrSlug}/lessons/${idOrSlug}`,
+      );
+    }
     return this.http.delete<{ success: boolean; message: string }>(
-      `${this.baseUrl}/lessons/${id}`,
+      `${this.baseUrl}/lessons/${idOrSlug}`,
+    );
+  }
+
+  reorderLessons(courseIdOrSlug: string, lessonIds: string[]): Observable<AdminLessonDetail[]> {
+    return this.http.patch<AdminLessonDetail[]>(
+      `${this.baseUrl}/courses/${courseIdOrSlug}/lessons/reorder`,
+      { lessonIds },
     );
   }
 }

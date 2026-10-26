@@ -25,7 +25,7 @@ type StudioTab = 'article' | 'vocabularies' | 'audios';
       <!-- Top Action Bar -->
       <div class="studio-topbar">
         <div class="topbar-left">
-          <a [routerLink]="['/admin/courses', courseId(), 'lessons']" class="btn-back" title="Quay lại danh sách bài">
+          <a [routerLink]="['/admin/courses', courseSlug() || courseId(), 'lessons']" class="btn-back" title="Quay lại danh sách bài">
             <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
@@ -359,6 +359,7 @@ export class LessonEditorComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly adminService = inject(AdminService);
 
+  readonly courseSlug = signal<string>('');
   readonly courseId = signal<string>('');
   readonly lessonId = signal<string | null>(null);
   readonly course = signal<AdminCourse | null>(null);
@@ -388,24 +389,31 @@ export class LessonEditorComponent implements OnInit {
   audios: AdminAudio[] = [];
 
   ngOnInit(): void {
-    const cid = this.route.snapshot.paramMap.get('courseId');
-    const lid = this.route.snapshot.paramMap.get('lessonId');
+    const cid = this.route.snapshot.paramMap.get('courseSlug') || this.route.snapshot.paramMap.get('courseId');
+    const lid = this.route.snapshot.paramMap.get('lessonSlug') || this.route.snapshot.paramMap.get('lessonId');
 
     if (cid) {
+      this.courseSlug.set(cid);
       this.courseId.set(cid);
-      this.adminService.getCourse(cid).subscribe((c: AdminCourse) => this.course.set(c));
+      this.adminService.getCourse(cid).subscribe((c: AdminCourse) => {
+        this.course.set(c);
+        if (c.slug) this.courseSlug.set(c.slug);
+        if (c.id) this.courseId.set(c.id);
+      });
     }
 
     if (lid && lid !== 'create') {
       this.lessonId.set(lid);
       this.isEditing.set(true);
-      this.loadLessonData(lid);
+      this.loadLessonData(lid, cid || undefined);
     }
   }
 
-  loadLessonData(lid: string): void {
-    this.adminService.getLesson(lid).subscribe({
+  loadLessonData(lid: string, cid?: string): void {
+    this.adminService.getLesson(lid, cid).subscribe({
       next: (data: AdminLessonDetail) => {
+        this.lessonId.set(data.id);
+        if (data.courseSlug) this.courseSlug.set(data.courseSlug);
         this.lessonTitle.set(data.title);
         this.lessonSlug = data.slug;
         this.description = data.description || '';
@@ -551,14 +559,15 @@ export class LessonEditorComponent implements OnInit {
         })),
     };
 
+    const courseRef = this.courseSlug() || this.courseId();
     const lid = this.lessonId();
     if (this.isEditing() && lid) {
       // Update
-      this.adminService.updateLesson(lid, payload).subscribe({
+      this.adminService.updateLesson(lid, payload, courseRef).subscribe({
         next: () => {
           this.isSaving.set(false);
           alert('Đã cập nhật bài học thành công!');
-          this.router.navigate(['/admin/courses', this.courseId(), 'lessons']);
+          this.router.navigate(['/admin/courses', courseRef, 'lessons']);
         },
         error: (err: HttpErrorResponse) => {
           this.isSaving.set(false);
@@ -570,11 +579,11 @@ export class LessonEditorComponent implements OnInit {
       });
     } else {
       // Create
-      this.adminService.createLesson(this.courseId(), payload as CreateLessonDto).subscribe({
+      this.adminService.createLesson(courseRef, payload as CreateLessonDto).subscribe({
         next: () => {
           this.isSaving.set(false);
           alert('Đã tạo bài học mới thành công!');
-          this.router.navigate(['/admin/courses', this.courseId(), 'lessons']);
+          this.router.navigate(['/admin/courses', courseRef, 'lessons']);
         },
         error: (err: HttpErrorResponse) => {
           this.isSaving.set(false);
