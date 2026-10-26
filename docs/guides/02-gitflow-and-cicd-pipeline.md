@@ -40,6 +40,32 @@ gitGraph
 | **`feature/*`** | `develop` | `develop` | Tạm thời (Xóa sau khi merge) | **Phát triển tính năng mới**.<br>• Quy tắc đặt tên: `feature/<scope>-<kebab-case>`.<br>• Ví dụ: `feature/web-learning-workspace`, `feature/api-srs-spaced-repetition`. |
 | **`hotfix/*`** | `master` | `master` & `develop` | Tạm thời (Xóa sau khi merge) | **Vá lỗi khẩn cấp trên Production**.<br>• Dùng khi phát hiện lỗi nghiêm trọng trên production cần xử lý ngay mà không chờ chu kỳ phát hành mới. |
 
+### 1.2. Sơ Đồ Vòng Đời Code Từ Local Lên Production (End-to-End Workflow)
+
+```mermaid
+flowchart TD
+    A["Local Work: code trên feature/* hoặc develop"] --> B["Chạy kiểm tra tại máy: npm run lint & build"]
+    B -->|"OK"| C["Push code lên nhánh develop: git push origin develop"]
+    C --> D["GitHub Actions tự động kích hoạt CI Pipeline"]
+    
+    subgraph CI ["GitHub Actions CI Quality Gate"]
+        D --> D1["Backend: TypeScript Compilation (nest build)"]
+        D --> D2["Frontend: ESLint Check (ng lint)"]
+        D --> D3["Frontend: Production Build (ng build --configuration production)"]
+    end
+    
+    D1 & D2 & D3 --> E{"Tất cả Jobs Xanh (Pass)?"}
+    E -->|"❌ Bị lỗi"| F["Báo đỏ trên GitHub + Sửa lỗi tại Local và push lại"]
+    F --> C
+    E -->|"✅ Thành công"| G["Tạo Pull Request trên GitHub: develop ➔ master"]
+    
+    G --> H["Kiểm tra trạng thái CI tích xanh trên giao diện PR"]
+    H --> I["Review mã nguồn & Phê duyệt (Approval)"]
+    I --> J["Nhấn nút 'Merge pull request'"]
+    J --> K["Nhánh 'master' cập nhật phiên bản mới an toàn 100%"]
+    K --> L["(Tương lai) Kích hoạt CD tự động triển khai lên VPS Production"]
+```
+
 ---
 
 ## ⚙️ 2. Kiến Trúc Đường Ống CI/CD (GitHub Actions Pipeline)
@@ -61,10 +87,11 @@ flowchart TD
         
         D --> D1["Setup Node 20 + Cache npm"]
         D1 --> D2["npm ci --silent"]
-        D2 --> D3["ng build --configuration production (Kiểm tra SCSS budget, Types, AOT)"]
+        D2 --> D3["ng lint (Kiểm tra chuẩn ESLint & Clean Code)"]
+        D3 --> D4["ng build --configuration production (Kiểm tra SCSS budget, Types, AOT)"]
     end
     
-    C3 & D3 --> F{"Tất Cả Jobs Pass?"}
+    C3 & D4 --> F{"Tất Cả Jobs Pass?"}
     F -->|"Thất bại ❌"| G["Chặn Merge PR + Báo lỗi qua GitHub"]
     F -->|"Thành công ✅"| H["Cho phép Merge vào develop / master"]
     
@@ -109,7 +136,8 @@ docker compose -f docker-compose.yml up -d --build --remove-orphans
 ## 🛡️ 5. Quy Chuẩn Đánh Giá Pull Request (PR Review Checklist)
 
 Trước khi ấn nút **Merge Pull Request** vào `develop` hoặc `master`, bắt buộc người duyệt PR phải kiểm tra các tiêu chí sau:
-- [ ] Pipeline GitHub Actions báo tích xanh **Passed** 100%.
+- [ ] Pipeline GitHub Actions báo tích xanh **Passed** 100% (Backend build, Frontend lint & build).
+- [ ] Frontend vượt qua kiểm tra `npm run lint` (`@angular-eslint`) không có error.
 - [ ] Tuân thủ [General Clean Code Rule](file:///d:/MY_PROJECT/speak-up/.agent/rules/general-coding-rules.md) (Không hardcode magic strings, chia nhỏ component < 50 dòng/hàm).
 - [ ] Tuân thủ [Backend API Backbone Rule](file:///d:/MY_PROJECT/speak-up/.agent/rules/backend-api-rules.md) (3-Tier, DTO có validation, không truy vấn DB ở controller).
 - [ ] Tuân thủ [Mobile App & Web Backbone Rules](file:///d:/MY_PROJECT/speak-up/.agent/rules/mobile-app-rules.md) (Touch target >= 44px, đủ 3 trạng thái Loading/Error/Empty).
