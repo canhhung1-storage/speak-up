@@ -80,15 +80,6 @@ type StudioTab = 'article' | 'vocabularies' | 'audios';
               min="1"
             />
           </div>
-
-          <div class="form-group">
-            <label>Audio tổng quan từ vựng (Vocab Audio URL)</label>
-            <input
-              type="text"
-              [(ngModel)]="vocabAudioUrl"
-              placeholder="https://assets.../audio/vocab-overview.mp3"
-            />
-          </div>
         </div>
 
         <div class="form-group" style="margin-top: 1rem;">
@@ -136,7 +127,7 @@ type StudioTab = 'article' | 'vocabularies' | 'audios';
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z" />
             </svg>
-            <span>3. Audio Phụ (Mini-Story & POV)</span>
+            <span>3. Audio Phụ (Vocab, Mini-Story, POV)</span>
             <span class="badge-counter">{{ audios.length }}</span>
           </button>
         </div>
@@ -180,7 +171,7 @@ type StudioTab = 'article' | 'vocabularies' | 'audios';
             </div>
 
             <div class="form-group">
-              <label>Nội dung câu chuyện (Story Content / Text / HTML) *</label>
+              <label>Nội dung câu chuyện (Story Content / Text / HTML)</label>
               <textarea
                 rows="14"
                 [(ngModel)]="article.content"
@@ -193,7 +184,7 @@ type StudioTab = 'article' | 'vocabularies' | 'audios';
 
         <!-- Tab 2: Từ Vựng (Vocabulary) -->
         <div class="tab-content" *ngIf="activeTab() === 'vocabularies'">
-          <div class="studio-item-list">
+          <div class="vocab-cards-grid">
             <div
               class="item-card"
               *ngFor="let vocab of vocabularies; let i = index"
@@ -203,76 +194,44 @@ type StudioTab = 'article' | 'vocabularies' | 'audios';
                 <button class="btn-remove" (click)="removeVocabulary(i)">Xóa từ này</button>
               </div>
 
-              <div class="vocab-grid">
-                <div class="form-group">
-                  <label>Từ / Cụm từ tiếng Anh *</label>
-                  <input
-                    type="text"
-                    [(ngModel)]="vocab.word"
-                    placeholder="ví dụ: gorgeous"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label>Phiên âm IPA</label>
-                  <input
-                    type="text"
-                    [(ngModel)]="vocab.ipa"
-                    placeholder="/ˈɡɔːr.dʒəs/"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label>Nghĩa tiếng Việt *</label>
-                  <input
-                    type="text"
-                    [(ngModel)]="vocab.meaningVi"
-                    placeholder="tuyệt đẹp, quyến rũ"
-                  />
-                </div>
-              </div>
-
-              <div class="examples-grid">
-                <div class="form-group">
-                  <label>Định nghĩa tiếng Anh (Definition EN)</label>
-                  <input
-                    type="text"
-                    [(ngModel)]="vocab.definitionEn"
-                    placeholder="Extremely beautiful or attractive"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label>Câu ví dụ (Example sentence)</label>
-                  <input
-                    type="text"
-                    [(ngModel)]="vocab.exampleSentence"
-                    placeholder="She is a gorgeous girl with long hair."
-                  />
-                </div>
-              </div>
-
+              <!-- Hàng 1: Từ vựng -->
               <div class="form-group">
-                <label>Audio phát âm từ (Pronunciation Audio URL)</label>
+                <label>Từ / Cụm từ tiếng Anh *</label>
                 <input
                   type="text"
-                  [(ngModel)]="vocab.audioUrl"
-                  placeholder="https://.../audio/gorgeous.mp3"
+                  [(ngModel)]="vocab.word"
+                  placeholder="ví dụ: gorgeous, a raise"
                 />
-                <div class="audio-tester" *ngIf="vocab.audioUrl">
-                  <span style="font-size: 0.8rem; font-weight: 600; color: #10b981;">Nghe thử:</span>
-                  <audio [src]="vocab.audioUrl" controls></audio>
-                </div>
+              </div>
+
+              <!-- Hàng 2: Định nghĩa tiếng Anh đơn giản (Definition EN) -->
+              <div class="form-group">
+                <label>Định nghĩa tiếng Anh (Definition EN)</label>
+                <input
+                  type="text"
+                  [(ngModel)]="vocab.definitionEn"
+                  placeholder="Extremely beautiful or attractive; a pay increase (for a job)"
+                />
+              </div>
+
+              <!-- Hàng 3: Câu ví dụ thực tế (Example sentence) -->
+              <div class="form-group">
+                <label>Câu ví dụ (Example sentence)</label>
+                <input
+                  type="text"
+                  [(ngModel)]="vocab.exampleSentence"
+                  placeholder="She is a gorgeous girl with long hair."
+                />
               </div>
             </div>
-
-            <button class="btn-add-item" (click)="addVocabulary()">
-              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-              <span>+ Thêm Từ Vựng Mới</span>
-            </button>
           </div>
+
+          <button class="btn-add-item" (click)="addVocabulary()">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            <span>+ Thêm Từ Vựng Mới</span>
+          </button>
         </div>
 
         <!-- Tab 3: Audio Phụ (Audios) -->
@@ -293,6 +252,7 @@ type StudioTab = 'article' | 'vocabularies' | 'audios';
                 <div class="form-group">
                   <label>Loại Audio *</label>
                   <select [(ngModel)]="audio.audioType">
+                    <option value="VOCABULARY">VOCABULARY (Giải thích từ vựng)</option>
                     <option value="MINI_STORY">MINI_STORY (Hỏi đáp phản xạ)</option>
                     <option value="COMMENTARY">COMMENTARY (Bình luận & Chia sẻ)</option>
                     <option value="POV">POV (Point of View - Ngữ pháp qua thì)</option>
@@ -371,7 +331,6 @@ export class LessonEditorComponent implements OnInit {
   readonly lessonTitle = signal<string>('');
   lessonSlug = '';
   description = '';
-  vocabAudioUrl = '';
   orderIndex = 1;
 
   // Tab 1: Article State
@@ -417,7 +376,6 @@ export class LessonEditorComponent implements OnInit {
         this.lessonTitle.set(data.title);
         this.lessonSlug = data.slug;
         this.description = data.description || '';
-        this.vocabAudioUrl = data.vocabAudioUrl || '';
         this.orderIndex = data.orderIndex;
 
         if (data.article) {
@@ -440,11 +398,8 @@ export class LessonEditorComponent implements OnInit {
         this.vocabularies = (data.vocabularies || []).map((v: AdminVocabulary, idx: number) => ({
           id: v.id,
           word: v.word,
-          ipa: v.ipa || '',
-          meaningVi: v.meaningVi,
           definitionEn: v.definitionEn || '',
           exampleSentence: v.exampleSentence || '',
-          audioUrl: v.audioUrl || '',
           orderIndex: v.orderIndex || idx + 1,
         }));
 
@@ -483,11 +438,8 @@ export class LessonEditorComponent implements OnInit {
   addVocabulary(): void {
     this.vocabularies.push({
       word: '',
-      ipa: '',
-      meaningVi: '',
       definitionEn: '',
       exampleSentence: '',
-      audioUrl: '',
       orderIndex: this.vocabularies.length + 1,
     });
   }
@@ -524,12 +476,11 @@ export class LessonEditorComponent implements OnInit {
       title,
       slug: this.lessonSlug.trim() || undefined,
       description: this.description.trim() || undefined,
-      vocabAudioUrl: this.vocabAudioUrl.trim() || undefined,
       orderIndex: Number(this.orderIndex) || 1,
-      article: this.article.title?.trim() && this.article.content?.trim()
+      article: this.article.title?.trim() || this.article.audioUrl?.trim() || this.article.content?.trim()
         ? {
-            title: this.article.title.trim(),
-            content: this.article.content.trim(),
+            title: this.article.title?.trim() || title,
+            content: this.article.content?.trim() || '',
             audioUrl: this.article.audioUrl?.trim() || undefined,
             durationSeconds: Number(this.article.durationSeconds) || 0,
           }
@@ -539,11 +490,8 @@ export class LessonEditorComponent implements OnInit {
         .map((v, idx) => ({
           id: v.id || undefined,
           word: v.word.trim(),
-          ipa: v.ipa?.trim() || undefined,
-          meaningVi: v.meaningVi?.trim() || '',
           definitionEn: v.definitionEn?.trim() || undefined,
           exampleSentence: v.exampleSentence?.trim() || undefined,
-          audioUrl: v.audioUrl?.trim() || undefined,
           orderIndex: Number(v.orderIndex) || idx + 1,
         })),
       audios: this.audios

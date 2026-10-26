@@ -122,7 +122,6 @@ export class AdminLessonsService {
       title: lesson.title,
       slug: lesson.slug,
       description: lesson.description,
-      vocabAudioUrl: lesson.vocabAudioUrl,
       orderIndex: lesson.orderIndex,
       hasArticle: !!lesson.article,
       totalVocabularies: lesson.vocabularies?.length || 0,
@@ -148,7 +147,6 @@ export class AdminLessonsService {
       title: lesson.title,
       slug: lesson.slug,
       description: lesson.description,
-      vocabAudioUrl: lesson.vocabAudioUrl,
       orderIndex: lesson.orderIndex,
       hasArticle: !!lesson.article,
       totalVocabularies: lesson.vocabularies?.length || 0,
@@ -167,11 +165,8 @@ export class AdminLessonsService {
       vocabularies: (lesson.vocabularies || []).map((v) => ({
         id: v.id,
         word: v.word,
-        ipa: v.ipa,
-        meaningVi: v.meaningVi,
         definitionEn: v.definitionEn,
         exampleSentence: v.exampleSentence,
-        audioUrl: v.audioUrl,
         orderIndex: v.orderIndex,
       })),
       audios: (lesson.audios || []).map((a) => ({
@@ -211,7 +206,6 @@ export class AdminLessonsService {
         title: dto.title,
         slug,
         description: dto.description,
-        vocabAudioUrl: dto.vocabAudioUrl,
         orderIndex: dto.orderIndex ?? 1,
         course,
       });
@@ -219,10 +213,10 @@ export class AdminLessonsService {
       const saved = await manager.save(Lesson, lesson);
 
       // Article
-      if (dto.article && dto.article.title && dto.article.content) {
+      if (dto.article && dto.article.title) {
         const article = manager.create(LessonArticle, {
           title: dto.article.title,
-          content: dto.article.content,
+          content: dto.article.content || '',
           audioUrl: dto.article.audioUrl || '',
           durationSeconds: dto.article.durationSeconds || 0,
           lesson: saved,
@@ -235,11 +229,8 @@ export class AdminLessonsService {
         const vocabEntities = dto.vocabularies.map((v, idx) =>
           manager.create(LessonVocabulary, {
             word: v.word,
-            ipa: v.ipa || '',
-            meaningVi: v.meaningVi,
             definitionEn: v.definitionEn || '',
             exampleSentence: v.exampleSentence || '',
-            audioUrl: v.audioUrl || '',
             orderIndex: v.orderIndex ?? idx + 1,
             lesson: saved,
           }),
@@ -299,7 +290,6 @@ export class AdminLessonsService {
         lesson.slug = dto.slug;
       }
       if (dto.description !== undefined) lesson.description = dto.description;
-      if (dto.vocabAudioUrl !== undefined) lesson.vocabAudioUrl = dto.vocabAudioUrl;
       if (dto.orderIndex !== undefined) lesson.orderIndex = dto.orderIndex;
 
       await manager.save(Lesson, lesson);
@@ -312,13 +302,16 @@ export class AdminLessonsService {
 
         if (article) {
           article.title = dto.article.title;
-          article.content = dto.article.content;
+          article.content = dto.article.content !== undefined ? dto.article.content : (article.content || '');
           article.audioUrl = dto.article.audioUrl || '';
           article.durationSeconds = dto.article.durationSeconds || 0;
           await manager.save(LessonArticle, article);
         } else {
           article = manager.create(LessonArticle, {
             ...dto.article,
+            content: dto.article.content || '',
+            audioUrl: dto.article.audioUrl || '',
+            durationSeconds: dto.article.durationSeconds || 0,
             lesson,
           });
           await manager.save(LessonArticle, article);
@@ -335,11 +328,8 @@ export class AdminLessonsService {
           const newVocabs = dto.vocabularies.map((v, index) =>
             manager.create(LessonVocabulary, {
               word: v.word,
-              ipa: v.ipa || '',
-              meaningVi: v.meaningVi,
               definitionEn: v.definitionEn || '',
               exampleSentence: v.exampleSentence || '',
-              audioUrl: v.audioUrl || '',
               orderIndex: v.orderIndex ?? index + 1,
               lesson,
             }),

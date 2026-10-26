@@ -30,7 +30,7 @@ export interface LearnerCourseDetail extends LearnerCourse {
 export interface LearnerArticle {
   id: string;
   title: string;
-  content: string;
+  content?: string;
   audioUrl?: string;
   durationSeconds?: number;
 }
@@ -38,17 +38,14 @@ export interface LearnerArticle {
 export interface LearnerVocabulary {
   id: string;
   word: string;
-  ipa?: string;
-  meaningVi: string;
   definitionEn?: string;
   exampleSentence?: string;
-  audioUrl?: string;
   orderIndex: number;
 }
 
 export interface LearnerAudioTrack {
   id: string;
-  audioType: 'MAIN_STORY' | 'MINI_STORY' | 'POINT_OF_VIEW' | 'COMMENTARY' | string;
+  audioType: 'VOCABULARY' | 'MAIN_STORY' | 'MINI_STORY' | 'POINT_OF_VIEW' | 'COMMENTARY' | string;
   title: string;
   audioUrl: string;
   transcript?: string;
@@ -65,7 +62,6 @@ export interface LearnerLessonDetail {
   slug: string;
   orderIndex: number;
   description?: string;
-  vocabAudioUrl?: string;
   article?: LearnerArticle;
   vocabularies: LearnerVocabulary[];
   audios: LearnerAudioTrack[];

@@ -32,11 +32,6 @@ export class UpdateLessonDto {
   @IsOptional()
   description?: string;
 
-  @ApiPropertyOptional({ example: 'https://assets.speakup.internal/audio/a-kiss-vocab.mp3' })
-  @IsString()
-  @IsOptional()
-  vocabAudioUrl?: string;
-
   @ApiPropertyOptional({ example: 1 })
   @IsInt()
   @Min(0)

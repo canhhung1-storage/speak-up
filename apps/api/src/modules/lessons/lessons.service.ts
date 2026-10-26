@@ -69,7 +69,6 @@ export class LessonsService {
       slug: lesson.slug,
       orderIndex: lesson.orderIndex,
       description: lesson.description,
-      vocabAudioUrl: lesson.vocabAudioUrl,
       article: lesson.article
         ? {
             id: lesson.article.id,
@@ -82,11 +81,8 @@ export class LessonsService {
       vocabularies: (lesson.vocabularies || []).map((vocab) => ({
         id: vocab.id,
         word: vocab.word,
-        ipa: vocab.ipa,
-        meaningVi: vocab.meaningVi,
         definitionEn: vocab.definitionEn,
         exampleSentence: vocab.exampleSentence,
-        audioUrl: vocab.audioUrl,
         orderIndex: vocab.orderIndex,
       })),
       audios: (lesson.audios || []).map((audio) => ({

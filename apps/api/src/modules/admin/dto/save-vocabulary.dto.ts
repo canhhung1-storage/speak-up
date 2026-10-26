@@ -11,52 +11,28 @@ export class SaveVocabularyDto {
   id?: string;
 
   @ApiProperty({
-    description: 'Từ vựng tiếng Anh',
-    example: 'huge',
+    description: 'Từ / cụm từ tiếng Anh',
+    example: 'a raise',
   })
   @IsString()
   @IsNotEmpty()
   word: string;
 
   @ApiPropertyOptional({
-    description: 'Phiên âm quốc tế IPA',
-    example: '/hjuːdʒ/',
-  })
-  @IsString()
-  @IsOptional()
-  ipa?: string;
-
-  @ApiProperty({
-    description: 'Nghĩa tiếng Việt',
-    example: 'Khổng lồ, to lớn',
-  })
-  @IsString()
-  @IsNotEmpty()
-  meaningVi: string;
-
-  @ApiPropertyOptional({
     description: 'Định nghĩa tiếng Anh đơn giản theo phong cách Effortless English',
-    example: 'Extremely large; enormous',
+    example: 'a pay increase, an increase in money for a job',
   })
   @IsString()
   @IsOptional()
   definitionEn?: string;
 
   @ApiPropertyOptional({
-    description: 'Câu ví dụ chứa từ mới',
-    example: "It's a huge, blue, fast car.",
+    description: 'Câu ví dụ chứa từ mới trong ngữ cảnh',
+    example: 'She asked her boss for a raise.',
   })
   @IsString()
   @IsOptional()
   exampleSentence?: string;
-
-  @ApiPropertyOptional({
-    description: 'Audio phát âm riêng của từ',
-    example: 'https://assets.speakup.internal/audio/vocab/huge.mp3',
-  })
-  @IsString()
-  @IsOptional()
-  audioUrl?: string;
 
   @ApiPropertyOptional({
     description: 'Thứ tự sắp xếp từ vựng',

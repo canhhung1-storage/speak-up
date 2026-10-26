@@ -39,9 +39,6 @@ export class Lesson {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ name: 'vocab_audio_url', length: 500, nullable: true })
-  vocabAudioUrl: string;
-
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

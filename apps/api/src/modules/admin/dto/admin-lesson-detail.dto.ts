@@ -26,19 +26,10 @@ export class AdminVocabularyResponseDto {
   word: string;
 
   @ApiPropertyOptional()
-  ipa?: string;
-
-  @ApiProperty()
-  meaningVi: string;
-
-  @ApiPropertyOptional()
   definitionEn?: string;
 
   @ApiPropertyOptional()
   exampleSentence?: string;
-
-  @ApiPropertyOptional()
-  audioUrl?: string;
 
   @ApiProperty()
   orderIndex: number;
@@ -85,9 +76,6 @@ export class AdminLessonSummaryDto {
 
   @ApiPropertyOptional()
   description?: string;
-
-  @ApiPropertyOptional()
-  vocabAudioUrl?: string;
 
   @ApiProperty()
   orderIndex: number;

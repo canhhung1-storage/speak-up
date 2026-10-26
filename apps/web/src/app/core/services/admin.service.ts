@@ -31,7 +31,7 @@ export type UpdateCourseDto = Partial<CreateCourseDto>;
 export interface AdminArticle {
   id?: string;
   title: string;
-  content: string;
+  content?: string;
   audioUrl?: string;
   durationSeconds?: number;
 }
@@ -39,17 +39,14 @@ export interface AdminArticle {
 export interface AdminVocabulary {
   id?: string;
   word: string;
-  ipa?: string;
-  meaningVi: string;
   definitionEn?: string;
   exampleSentence?: string;
-  audioUrl?: string;
   orderIndex?: number;
 }
 
 export interface AdminAudio {
   id?: string;
-  audioType: 'MINI_STORY' | 'COMMENTARY' | 'POV';
+  audioType: 'VOCABULARY' | 'MINI_STORY' | 'COMMENTARY' | 'POV';
   title: string;
   audioUrl: string;
   transcript?: string;
@@ -64,7 +61,6 @@ export interface AdminLessonDetail {
   title: string;
   slug: string;
   description?: string;
-  vocabAudioUrl?: string;
   orderIndex: number;
   hasArticle: boolean;
   totalVocabularies: number;
@@ -80,7 +76,6 @@ export interface CreateLessonDto {
   title: string;
   slug?: string;
   description?: string;
-  vocabAudioUrl?: string;
   orderIndex?: number;
   article?: AdminArticle;
   vocabularies?: AdminVocabulary[];

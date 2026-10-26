@@ -9,11 +9,8 @@ export class LessonArticleDto {
 export class LessonVocabularyDto {
   id: string;
   word: string;
-  ipa: string | null;
-  meaningVi: string;
   definitionEn: string | null;
   exampleSentence: string | null;
-  audioUrl: string | null;
   orderIndex: number;
 }
 
@@ -36,7 +33,6 @@ export class LessonDetailResponseDto {
   slug: string;
   orderIndex: number;
   description: string | null;
-  vocabAudioUrl: string | null;
   article: LessonArticleDto | null;
   vocabularies: LessonVocabularyDto[];
   audios: LessonAudioDto[];

@@ -101,7 +101,6 @@ async function runSeed() {
       orderIndex: 1,
       description:
         'Bài học mở đầu kinh điển kể về câu chuyện Carlos mua xe mới và gặp một cô gái xinh đẹp trên đường.',
-      vocabAudioUrl: 'https://assets.speakup.internal/audio/a-kiss-vocab.mp3',
     });
     await lessonRepo.save(lesson);
     console.log('📖 [Seed] Created Lesson: A Kiss (slug: a-kiss)');
@@ -132,51 +131,36 @@ async function runSeed() {
       {
         lessonId: lesson.id,
         word: 'huge',
-        ipa: '/hjuːdʒ/',
-        meaningVi: 'Cực kỳ to lớn, khổng lồ',
         definitionEn: 'Extremely large; enormous',
         exampleSentence: "It's a huge, blue, fast car.",
-        audioUrl: 'https://assets.speakup.internal/audio/vocab/huge.mp3',
         orderIndex: 1,
       },
       {
         lessonId: lesson.id,
         word: 'gorgeous',
-        ipa: '/ˈɡɔːrdʒəs/',
-        meaningVi: 'Xinh đẹp lộng lẫy, quyến rũ',
         definitionEn: 'Very attractive or pleasant',
         exampleSentence: 'She has long blond hair and is gorgeous.',
-        audioUrl: 'https://assets.speakup.internal/audio/vocab/gorgeous.mp3',
         orderIndex: 2,
       },
       {
         lessonId: lesson.id,
         word: 'yell',
-        ipa: '/jel/',
-        meaningVi: 'La lớn, hét to',
         definitionEn: 'To shout something or make a loud noise',
         exampleSentence: 'He yells to her, "What\'s up?"',
-        audioUrl: 'https://assets.speakup.internal/audio/vocab/yell.mp3',
         orderIndex: 3,
       },
       {
         lessonId: lesson.id,
         word: 'ignore',
-        ipa: '/ɪɡˈnɔːr/',
-        meaningVi: 'Phớt lờ, làm ngơ',
         definitionEn: 'To pay no attention to something or someone',
         exampleSentence: 'She keeps going and ignores him.',
-        audioUrl: 'https://assets.speakup.internal/audio/vocab/ignore.mp3',
         orderIndex: 4,
       },
       {
         lessonId: lesson.id,
         word: 'whisper',
-        ipa: '/ˈwɪspər/',
-        meaningVi: 'Thì thầm, nói nhỏ',
         definitionEn: 'To speak very softly using one\'s breath',
         exampleSentence: 'He whispers in her ear.',
-        audioUrl: 'https://assets.speakup.internal/audio/vocab/whisper.mp3',
         orderIndex: 5,
       },
     ];
@@ -187,6 +171,15 @@ async function runSeed() {
     const audios = [
       {
         lessonId: lesson.id,
+        audioType: AudioType.VOCABULARY,
+        title: 'A Kiss - Vocabulary Explanation',
+        audioUrl: 'https://assets.speakup.internal/audio/a-kiss-vocab.mp3',
+        transcript: 'Hello, this is AJ Hoge. Welcome to the vocabulary lesson for A Kiss...',
+        durationSeconds: 580,
+        orderIndex: 1,
+      },
+      {
+        lessonId: lesson.id,
         audioType: AudioType.MINI_STORY,
         title: 'A Kiss - Mini Story A',
         audioUrl: 'https://assets.speakup.internal/audio/a-kiss-mini-story-a.mp3',
@@ -194,7 +187,7 @@ async function runSeed() {
           'Carlos bought a new car. Did Carlos buy a new car? Yes, he did. He bought a new car. ' +
           'Was the car cheap or expensive? It was expensive. Carlos bought a very expensive car...',
         durationSeconds: 620,
-        orderIndex: 1,
+        orderIndex: 2,
       },
       {
         lessonId: lesson.id,
@@ -205,7 +198,7 @@ async function runSeed() {
           'Since last year, Carlos has had a dream. In the future, Carlos will buy a new car. ' +
           'It will be a huge, blue, fast car...',
         durationSeconds: 430,
-        orderIndex: 2,
+        orderIndex: 3,
       },
       {
         lessonId: lesson.id,
@@ -215,11 +208,11 @@ async function runSeed() {
         transcript:
           'Welcome to the commentary for A Kiss. Today we talk about taking initiative and learning with enthusiasm...',
         durationSeconds: 510,
-        orderIndex: 3,
+        orderIndex: 4,
       },
     ];
     await audioRepo.save(audioRepo.create(audios));
-    console.log('🎧 [Seed] Created 3 Audio lessons (Mini Story, POV, Commentary) for A Kiss');
+    console.log('🎧 [Seed] Created 4 Audio lessons (Vocabulary, Mini Story, POV, Commentary) for A Kiss');
   }
 
   console.log('🎉 [Seed] Seeding completed successfully!');
