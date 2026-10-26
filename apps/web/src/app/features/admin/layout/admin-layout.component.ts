@@ -14,7 +14,10 @@ import { ThemeService } from '../../../core/services/theme.service';
       <div
         class="sidebar-overlay"
         [class.visible]="isSidebarOpen()"
+        role="button"
+        tabindex="0"
         (click)="closeSidebar()"
+        (keyup.escape)="closeSidebar()"
       ></div>
 
       <!-- Left Sidebar -->

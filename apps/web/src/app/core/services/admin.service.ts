@@ -26,7 +26,7 @@ export interface CreateCourseDto {
   orderIndex?: number;
 }
 
-export interface UpdateCourseDto extends Partial<CreateCourseDto> {}
+export type UpdateCourseDto = Partial<CreateCourseDto>;
 
 export interface AdminArticle {
   id?: string;
@@ -86,7 +86,7 @@ export interface CreateLessonDto {
   audios?: AdminAudio[];
 }
 
-export interface UpdateLessonDto extends Partial<CreateLessonDto> {}
+export type UpdateLessonDto = Partial<CreateLessonDto>;
 
 @Injectable({
   providedIn: 'root',

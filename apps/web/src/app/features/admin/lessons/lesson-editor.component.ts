@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
@@ -559,7 +560,7 @@ export class LessonEditorComponent implements OnInit {
           alert('Đã cập nhật bài học thành công!');
           this.router.navigate(['/admin/courses', this.courseId(), 'lessons']);
         },
-        error: (err: any) => {
+        error: (err: HttpErrorResponse) => {
           this.isSaving.set(false);
           const msg = Array.isArray(err.error?.message)
             ? err.error.message.join(', ')
@@ -575,7 +576,7 @@ export class LessonEditorComponent implements OnInit {
           alert('Đã tạo bài học mới thành công!');
           this.router.navigate(['/admin/courses', this.courseId(), 'lessons']);
         },
-        error: (err: any) => {
+        error: (err: HttpErrorResponse) => {
           this.isSaving.set(false);
           const msg = Array.isArray(err.error?.message)
             ? err.error.message.join(', ')

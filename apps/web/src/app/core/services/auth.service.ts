@@ -20,7 +20,31 @@ export interface AuthResponse {
   user: AuthUser;
 }
 
-declare const google: any;
+interface GoogleCredentialResponse {
+  credential?: string;
+  select_by?: string;
+}
+
+interface GoogleAccountsId {
+  initialize: (config: {
+    client_id: string;
+    callback: (res: GoogleCredentialResponse) => void;
+    auto_select?: boolean;
+    cancel_on_tap_outside?: boolean;
+    [key: string]: unknown;
+  }) => void;
+  renderButton: (parent: HTMLElement, options: Record<string, unknown>) => void;
+  prompt: () => void;
+  disableAutoSelect: () => void;
+}
+
+interface GoogleAuthGlobal {
+  accounts?: {
+    id?: GoogleAccountsId;
+  };
+}
+
+declare const google: GoogleAuthGlobal | undefined;
 
 @Injectable({
   providedIn: 'root',
@@ -60,14 +84,14 @@ export class AuthService {
   /**
    * Initializes Google Identity Services (GIS)
    */
-  initGoogleAuth(onSuccess: (response: AuthResponse) => void, onError?: (err: any) => void): void {
+  initGoogleAuth(onSuccess: (response: AuthResponse) => void, onError?: (err: unknown) => void): void {
     if (typeof window === 'undefined') return;
 
     const checkGoogle = () => {
-      if (typeof google !== 'undefined' && google.accounts?.id) {
+      if (typeof google !== 'undefined' && google?.accounts?.id) {
         google.accounts.id.initialize({
           client_id: environment.googleClientId,
-          callback: (credentialResponse: any) => {
+          callback: (credentialResponse: GoogleCredentialResponse) => {
             if (credentialResponse?.credential) {
               this.isLoading.set(true);
               this.loginWithGoogle(credentialResponse.credential).subscribe({
@@ -102,7 +126,7 @@ export class AuthService {
     width = 380,
   ): void {
     const checkGoogle = () => {
-      if (typeof google !== 'undefined' && google.accounts?.id) {
+      if (typeof google !== 'undefined' && google?.accounts?.id) {
         google.accounts.id.renderButton(container, {
           theme: isDark ? 'filled_black' : 'outline',
           size: 'large',
@@ -180,8 +204,8 @@ export class AuthService {
     this.http
       .post(`${environment.apiUrl}/auth/logout`, {}, { withCredentials: true })
       .subscribe({
-        next: () => {},
-        error: () => {},
+        next: () => undefined,
+        error: (err) => console.warn('Logout notification error:', err),
       });
 
     if (typeof window !== 'undefined') {

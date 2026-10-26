@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AdminService, AdminCourse } from '../../../core/services/admin.service';
@@ -309,7 +310,7 @@ export class CourseListComponent implements OnInit {
         this.courses.set(data);
         this.isLoading.set(false);
       },
-      error: (err: any) => {
+      error: () => {
         this.errorMessage.set('Không thể tải danh sách khóa học. Vui lòng thử lại!');
         this.isLoading.set(false);
       },
@@ -414,7 +415,7 @@ export class CourseListComponent implements OnInit {
           this.isSaving.set(false);
           this.closeModal();
         },
-        error: (err: any) => {
+        error: (err: HttpErrorResponse) => {
           this.isSaving.set(false);
           alert('Lỗi khi cập nhật khóa học: ' + (err.error?.message || err.message));
         },
@@ -427,7 +428,7 @@ export class CourseListComponent implements OnInit {
           this.isSaving.set(false);
           this.closeModal();
         },
-        error: (err: any) => {
+        error: (err: HttpErrorResponse) => {
           this.isSaving.set(false);
           alert('Lỗi khi tạo mới khóa học: ' + (err.error?.message || err.message));
         },

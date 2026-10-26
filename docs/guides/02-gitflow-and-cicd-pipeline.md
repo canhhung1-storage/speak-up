@@ -61,10 +61,11 @@ flowchart TD
         
         D --> D1["Setup Node 20 + Cache npm"]
         D1 --> D2["npm ci --silent"]
-        D2 --> D3["ng build --configuration production (Kiểm tra SCSS budget, Types, AOT)"]
+        D2 --> D3["ng lint (Kiểm tra chuẩn ESLint & Clean Code)"]
+        D3 --> D4["ng build --configuration production (Kiểm tra SCSS budget, Types, AOT)"]
     end
     
-    C3 & D3 --> F{"Tất Cả Jobs Pass?"}
+    C3 & D4 --> F{"Tất Cả Jobs Pass?"}
     F -->|"Thất bại ❌"| G["Chặn Merge PR + Báo lỗi qua GitHub"]
     F -->|"Thành công ✅"| H["Cho phép Merge vào develop / master"]
     
@@ -109,7 +110,8 @@ docker compose -f docker-compose.yml up -d --build --remove-orphans
 ## 🛡️ 5. Quy Chuẩn Đánh Giá Pull Request (PR Review Checklist)
 
 Trước khi ấn nút **Merge Pull Request** vào `develop` hoặc `master`, bắt buộc người duyệt PR phải kiểm tra các tiêu chí sau:
-- [ ] Pipeline GitHub Actions báo tích xanh **Passed** 100%.
+- [ ] Pipeline GitHub Actions báo tích xanh **Passed** 100% (Backend build, Frontend lint & build).
+- [ ] Frontend vượt qua kiểm tra `npm run lint` (`@angular-eslint`) không có error.
 - [ ] Tuân thủ [General Clean Code Rule](file:///d:/MY_PROJECT/speak-up/.agent/rules/general-coding-rules.md) (Không hardcode magic strings, chia nhỏ component < 50 dòng/hàm).
 - [ ] Tuân thủ [Backend API Backbone Rule](file:///d:/MY_PROJECT/speak-up/.agent/rules/backend-api-rules.md) (3-Tier, DTO có validation, không truy vấn DB ở controller).
 - [ ] Tuân thủ [Mobile App & Web Backbone Rules](file:///d:/MY_PROJECT/speak-up/.agent/rules/mobile-app-rules.md) (Touch target >= 44px, đủ 3 trạng thái Loading/Error/Empty).

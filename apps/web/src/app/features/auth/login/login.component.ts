@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ThemeService } from '../../../core/services/theme.service';
-import { AuthService, AuthResponse } from '../../../core/services/auth.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -622,12 +622,12 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
   private setupGoogleAuth(): void {
     this.authService.initGoogleAuth(
-      (response: AuthResponse) => {
+      () => {
         this.errorMessage.set(null);
         const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/courses';
         this.router.navigateByUrl(returnUrl);
       },
-      (error: any) => {
+      (error: unknown) => {
         console.error('Google Sign-In failed:', error);
         this.errorMessage.set('Google sign-in failed. Please try again.');
       },

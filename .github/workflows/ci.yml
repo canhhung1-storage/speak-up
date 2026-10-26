@@ -64,6 +64,11 @@ jobs:
           cd apps/web
           npm ci --prefer-offline --no-audit
 
+      - name: Code Quality & Lint Check (Angular ESLint)
+        run: |
+          cd apps/web
+          npm run lint
+
       - name: Build Production Web Bundle
         run: |
           cd apps/web
