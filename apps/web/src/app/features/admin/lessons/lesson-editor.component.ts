@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
@@ -99,7 +99,7 @@ type StudioTab = 'article' | 'vocabularies' | 'audios';
           <button
             class="tab-btn"
             [class.active]="activeTab() === 'article'"
-            (click)="activeTab.set('article')"
+            (click)="switchTab('article')"
           >
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -110,7 +110,7 @@ type StudioTab = 'article' | 'vocabularies' | 'audios';
           <button
             class="tab-btn"
             [class.active]="activeTab() === 'vocabularies'"
-            (click)="activeTab.set('vocabularies')"
+            (click)="switchTab('vocabularies')"
           >
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
@@ -122,7 +122,7 @@ type StudioTab = 'article' | 'vocabularies' | 'audios';
           <button
             class="tab-btn"
             [class.active]="activeTab() === 'audios'"
-            (click)="activeTab.set('audios')"
+            (click)="switchTab('audios')"
           >
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 100-6 3 3 0 000 6z" />
@@ -144,40 +144,170 @@ type StudioTab = 'article' | 'vocabularies' | 'audios';
               />
             </div>
 
-            <div class="form-row" style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
-              <div class="form-group">
-                <label>Link Audio bài đọc (Narration Audio URL)</label>
-                <input
-                  type="text"
-                  [(ngModel)]="article.audioUrl"
-                  placeholder="https://example.com/audio/story.mp3"
-                />
-              </div>
-
-              <div class="form-group">
-                <label>Thời lượng (giây)</label>
-                <input
-                  type="number"
-                  [(ngModel)]="article.durationSeconds"
-                  min="0"
-                  placeholder="150"
-                />
-              </div>
+            <div class="form-group">
+              <label>Link Audio bài đọc (Narration Audio URL)</label>
+              <input
+                type="text"
+                [(ngModel)]="article.audioUrl"
+                placeholder="https://example.com/audio/story.mp3"
+              />
             </div>
 
             <div class="audio-tester" *ngIf="article.audioUrl">
               <span style="font-size: 0.8rem; font-weight: 600; color: #10b981;">Nghe thử:</span>
-              <audio [src]="article.audioUrl" controls></audio>
+              <audio [src]="article.audioUrl" controls (loadedmetadata)="onArticleAudioLoaded($event)"></audio>
             </div>
 
-            <div class="form-group">
-              <label>Nội dung câu chuyện (Story Content / Text / HTML)</label>
+            <!-- SpeakUp Story Rich Text Editor -->
+            <div class="form-group story-editor-group">
+              <div class="editor-header">
+                <label>Nội dung câu chuyện (Story Content)</label>
+                <div class="editor-mode-toggle">
+                  <button
+                    type="button"
+                    class="btn-mode"
+                    [class.active]="!isHtmlMode"
+                    (click)="setEditorMode(false)"
+                  >
+                    Trực quan (Visual)
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-mode"
+                    [class.active]="isHtmlMode"
+                    (click)="setEditorMode(true)"
+                  >
+                    &lt;/&gt; Mã HTML
+                  </button>
+                </div>
+              </div>
+
+              <!-- Toolbar for Visual Mode -->
+              <div class="editor-toolbar" *ngIf="!isHtmlMode">
+                <button
+                  type="button"
+                  class="toolbar-btn"
+                  (click)="execCmd('bold')"
+                  title="In đậm (Ctrl+B)"
+                >
+                  <strong>B</strong>
+                </button>
+
+                <button
+                  type="button"
+                  class="toolbar-btn"
+                  (click)="execCmd('italic')"
+                  title="In nghiêng (Ctrl+I)"
+                >
+                  <em>I</em>
+                </button>
+
+                <button
+                  type="button"
+                  class="toolbar-btn"
+                  (click)="execCmd('underline')"
+                  title="Gạch chân (Ctrl+U)"
+                >
+                  <u>U</u>
+                </button>
+
+                <span class="toolbar-divider"></span>
+
+                <!-- SPECIAL VOCABULARY HIGHLIGHT BUTTON -->
+                <button
+                  type="button"
+                  class="toolbar-btn btn-highlight-vocab"
+                  (click)="highlightVocabulary()"
+                  title="Tô sáng Từ Vựng Mới (<mark>)"
+                >
+                  <span class="highlight-icon">🖍️</span>
+                  <span>Tô từ mới (&lt;mark&gt;)</span>
+                </button>
+
+                <span class="toolbar-divider"></span>
+
+                <button
+                  type="button"
+                  class="toolbar-btn"
+                  (click)="execFormatBlock('h2')"
+                  title="Tiêu đề đoạn (H2)"
+                >
+                  H2
+                </button>
+
+                <button
+                  type="button"
+                  class="toolbar-btn"
+                  (click)="execFormatBlock('h3')"
+                  title="Tiêu đề phụ (H3)"
+                >
+                  H3
+                </button>
+
+                <button
+                  type="button"
+                  class="toolbar-btn"
+                  (click)="execFormatBlock('p')"
+                  title="Đoạn văn (Paragraph)"
+                >
+                  ¶ Đoạn
+                </button>
+
+                <button
+                  type="button"
+                  class="toolbar-btn"
+                  (click)="execFormatBlock('blockquote')"
+                  title="Trích dẫn (Quote)"
+                >
+                  “”
+                </button>
+
+                <span class="toolbar-divider"></span>
+
+                <button
+                  type="button"
+                  class="toolbar-btn"
+                  (click)="execCmd('insertUnorderedList')"
+                  title="Danh sách gạch đầu dòng"
+                >
+                  • Danh sách
+                </button>
+
+                <button
+                  type="button"
+                  class="toolbar-btn"
+                  (click)="execCmd('removeFormat')"
+                  title="Xóa định dạng"
+                >
+                  🧹 Xóa style
+                </button>
+              </div>
+
+              <!-- Visual Editable Area -->
+              <div
+                #editorContainer
+                *ngIf="!isHtmlMode"
+                class="editor-editable-area"
+                contenteditable="true"
+                (input)="onEditorInput()"
+                placeholder="Nhập nội dung câu chuyện tiếng Anh... Bôi đen từ mới và bấm nút 'Tô từ mới' để highlight."
+              ></div>
+
+              <!-- Raw HTML Mode -->
               <textarea
-                rows="14"
+                *ngIf="isHtmlMode"
+                rows="15"
+                class="editor-raw-textarea"
                 [(ngModel)]="article.content"
-                placeholder="Nhập toàn bộ nội dung câu chuyện tiếng Anh tại đây..."
+                placeholder="Nhập hoặc dán mã HTML câu chuyện..."
               ></textarea>
-              <span class="helper-text">Hỗ trợ các thẻ đoạn văn HTML hoặc định dạng bôi đậm bằng thẻ &lt;mark&gt;từ mới&lt;/mark&gt;.</span>
+
+              <div class="editor-footer">
+                <span class="helper-text">
+                  💡 Mẹo: Bôi đen từ hoặc cụm từ mới rồi bấm nút <strong>🖍️ Tô từ mới</strong> để đánh dấu từ vựng cho học viên tra cứu tương tác.
+                </span>
+                <span class="word-counter">{{ getWordCount(article.content) }} từ</span>
+              </div>
             </div>
           </div>
         </div>
@@ -267,15 +397,6 @@ type StudioTab = 'article' | 'vocabularies' | 'audios';
                     placeholder="ví dụ: Mini-Story A - A Kiss"
                   />
                 </div>
-
-                <div class="form-group">
-                  <label>Thời lượng (giây)</label>
-                  <input
-                    type="number"
-                    [(ngModel)]="audio.durationSeconds"
-                    min="0"
-                  />
-                </div>
               </div>
 
               <div class="form-group">
@@ -287,7 +408,7 @@ type StudioTab = 'article' | 'vocabularies' | 'audios';
                 />
                 <div class="audio-tester" *ngIf="audio.audioUrl">
                   <span style="font-size: 0.8rem; font-weight: 600; color: #10b981;">Nghe thử:</span>
-                  <audio [src]="audio.audioUrl" controls></audio>
+                  <audio [src]="audio.audioUrl" controls (loadedmetadata)="onTrackAudioLoaded(audio, $event)"></audio>
                 </div>
               </div>
 
@@ -334,6 +455,9 @@ export class LessonEditorComponent implements OnInit {
   orderIndex = 1;
 
   // Tab 1: Article State
+  @ViewChild('editorContainer') editorContainer?: ElementRef<HTMLDivElement>;
+  isHtmlMode = false;
+
   article: AdminArticle = {
     title: '',
     content: '',
@@ -394,6 +518,12 @@ export class LessonEditorComponent implements OnInit {
             durationSeconds: 0,
           };
         }
+
+        setTimeout(() => {
+          if (this.editorContainer?.nativeElement) {
+            this.editorContainer.nativeElement.innerHTML = this.article.content || '';
+          }
+        }, 50);
 
         this.vocabularies = (data.vocabularies || []).map((v: AdminVocabulary, idx: number) => ({
           id: v.id,
@@ -463,7 +593,113 @@ export class LessonEditorComponent implements OnInit {
     this.audios.splice(index, 1);
   }
 
+  switchTab(tab: StudioTab): void {
+    if (this.activeTab() === 'article' && !this.isHtmlMode && this.editorContainer?.nativeElement) {
+      this.article.content = this.editorContainer.nativeElement.innerHTML;
+    }
+    this.activeTab.set(tab);
+    if (tab === 'article' && !this.isHtmlMode) {
+      setTimeout(() => {
+        if (this.editorContainer?.nativeElement) {
+          this.editorContainer.nativeElement.innerHTML = this.article.content || '';
+        }
+      }, 0);
+    }
+  }
+
+  setEditorMode(isHtml: boolean): void {
+    if (this.isHtmlMode === isHtml) return;
+
+    if (isHtml) {
+      if (this.editorContainer?.nativeElement) {
+        this.article.content = this.editorContainer.nativeElement.innerHTML;
+      }
+      this.isHtmlMode = true;
+    } else {
+      this.isHtmlMode = false;
+      setTimeout(() => {
+        if (this.editorContainer?.nativeElement) {
+          this.editorContainer.nativeElement.innerHTML = this.article.content || '';
+        }
+      }, 0);
+    }
+  }
+
+  onEditorInput(): void {
+    if (this.editorContainer?.nativeElement) {
+      this.article.content = this.editorContainer.nativeElement.innerHTML;
+    }
+  }
+
+  execCmd(command: string, value: string | undefined = undefined): void {
+    document.execCommand(command, false, value);
+    this.onEditorInput();
+  }
+
+  execFormatBlock(tag: string): void {
+    document.execCommand('formatBlock', false, tag);
+    this.onEditorInput();
+  }
+
+  highlightVocabulary(): void {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+      alert('Vui lòng bôi đen từ hoặc cụm từ mới trước khi bấm Tô từ mới!');
+      return;
+    }
+
+    let node: Node | null = selection.anchorNode;
+    let markElement: HTMLElement | null = null;
+    while (node && node !== this.editorContainer?.nativeElement) {
+      if (node.nodeType === Node.ELEMENT_NODE && (node as HTMLElement).tagName === 'MARK') {
+        markElement = node as HTMLElement;
+        break;
+      }
+      node = node.parentNode;
+    }
+
+    if (markElement) {
+      const parent = markElement.parentNode;
+      while (markElement.firstChild) {
+        parent?.insertBefore(markElement.firstChild, markElement);
+      }
+      parent?.removeChild(markElement);
+    } else {
+      const selectedHtml = selection.toString();
+      if (selectedHtml.trim()) {
+        document.execCommand('insertHTML', false, `<mark class="vocab-highlight">${selectedHtml}</mark>`);
+      }
+    }
+
+    this.onEditorInput();
+  }
+
+  getWordCount(content?: string): number {
+    if (!content) return 0;
+    const text = content.replace(/<[^>]*>/g, ' ').trim();
+    if (!text) return 0;
+    return text.split(/\s+/).filter(Boolean).length;
+  }
+
+  onArticleAudioLoaded(event: Event): void {
+    const audio = event.target as HTMLAudioElement;
+    if (audio && audio.duration && !isNaN(audio.duration)) {
+      this.article.durationSeconds = Math.round(audio.duration);
+    }
+  }
+
+  onTrackAudioLoaded(track: AdminAudio, event: Event): void {
+    const audio = event.target as HTMLAudioElement;
+    if (audio && audio.duration && !isNaN(audio.duration)) {
+      track.durationSeconds = Math.round(audio.duration);
+    }
+  }
+
   saveLesson(): void {
+    if (this.activeTab() === 'article' && !this.isHtmlMode && this.editorContainer?.nativeElement) {
+      this.article.content = this.editorContainer.nativeElement.innerHTML;
+    }
+
     const title = this.lessonTitle().trim();
     if (!title) {
       alert('Vui lòng nhập tiêu đề bài học');
