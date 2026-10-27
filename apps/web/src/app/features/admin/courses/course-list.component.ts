@@ -14,29 +14,29 @@ import { AdminService, AdminCourse } from '../../../core/services/admin.service'
       <!-- Header -->
       <header class="page-header">
         <div class="header-info">
-          <h2>Quản Lý Khóa Học</h2>
-          <p>Tạo mới, biên tập và cấu hình phát hành các khóa học trên nền tảng SpeakUp</p>
+          <h2>Course Management</h2>
+          <p>Create, edit, and manage courses across the SpeakUp platform</p>
         </div>
         <button class="btn-primary" (click)="openCreateModal()">
           <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
-          <span>Thêm Khóa Học Mới</span>
+          <span>Add New Course</span>
         </button>
       </header>
 
       <!-- Stats Cards -->
       <div class="stats-grid">
         <div class="stat-card">
-          <span class="stat-label">Tổng số khóa học</span>
+          <span class="stat-label">Total Courses</span>
           <span class="stat-value">{{ courses().length }}</span>
         </div>
         <div class="stat-card">
-          <span class="stat-label">Đang phát hành</span>
+          <span class="stat-label">Published</span>
           <span class="stat-value" style="color: #10b981;">{{ publishedCount() }}</span>
         </div>
         <div class="stat-card">
-          <span class="stat-label">Tổng số bài học</span>
+          <span class="stat-label">Total Lessons</span>
           <span class="stat-value" style="color: #3b82f6;">{{ totalLessonsCount() }}</span>
         </div>
       </div>
@@ -50,7 +50,7 @@ import { AdminService, AdminCourse } from '../../../core/services/admin.service'
             </svg>
             <input
               type="text"
-              placeholder="Tìm kiếm khóa học..."
+              placeholder="Search courses..."
               [ngModel]="searchQuery()"
               (ngModelChange)="searchQuery.set($event)"
             />
@@ -60,18 +60,18 @@ import { AdminService, AdminCourse } from '../../../core/services/admin.service'
         <!-- 3-State Rule: Loading -->
         <div *ngIf="isLoading()" class="state-box">
           <div class="spinner"></div>
-          <p>Đang tải danh sách khóa học...</p>
+          <p>Loading courses...</p>
         </div>
 
         <!-- 3-State Rule: Error -->
         <div *ngIf="errorMessage() && !isLoading()" class="state-box" style="color: #ef4444;">
           <p>{{ errorMessage() }}</p>
-          <button class="btn-action" style="margin: 1rem auto 0;" (click)="loadCourses()">Thử lại</button>
+          <button class="btn-action" style="margin: 1rem auto 0;" (click)="loadCourses()">Retry</button>
         </div>
 
         <!-- 3-State Rule: Empty -->
         <div *ngIf="!isLoading() && !errorMessage() && filteredCourses().length === 0" class="state-box">
-          <p>Chưa có khóa học nào hoặc không khớp với từ khóa tìm kiếm.</p>
+          <p>No courses found matching your query.</p>
         </div>
 
         <!-- Table View -->
@@ -79,12 +79,12 @@ import { AdminService, AdminCourse } from '../../../core/services/admin.service'
           <table class="admin-table">
             <thead>
               <tr>
-                <th style="width: 60px;">Thứ tự</th>
-                <th>Khóa học</th>
-                <th>Cấp độ</th>
-                <th>Bài học</th>
-                <th>Phát hành</th>
-                <th style="text-align: right;">Hành động</th>
+                <th style="width: 60px;">Order</th>
+                <th>Course</th>
+                <th>Level</th>
+                <th>Lessons</th>
+                <th>Published</th>
+                <th style="text-align: right;">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -116,10 +116,10 @@ import { AdminService, AdminCourse } from '../../../core/services/admin.service'
                   </span>
                 </td>
                 <td>
-                  <strong>{{ course.totalLessons }}</strong> bài
+                  <strong>{{ course.totalLessons }}</strong> lessons
                 </td>
                 <td>
-                  <label class="toggle-switch" title="Chuyển trạng thái xuất bản">
+                  <label class="toggle-switch" title="Toggle publish status">
                     <input
                       type="checkbox"
                       [checked]="course.isPublished"
@@ -133,27 +133,27 @@ import { AdminService, AdminCourse } from '../../../core/services/admin.service'
                     <a
                       [routerLink]="['/admin/courses', course.slug, 'lessons']"
                       class="btn-action btn-lessons"
-                      title="Quản lý danh sách bài học"
+                      title="Manage lessons"
                     >
                       <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                       </svg>
-                      <span>Bài học ({{ course.totalLessons }})</span>
+                      <span>Lessons ({{ course.totalLessons }})</span>
                     </a>
                     <button
                       class="btn-action"
                       (click)="openEditModal(course)"
-                      title="Sửa thông tin khóa học"
+                      title="Edit course"
                     >
                       <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
-                      <span>Sửa</span>
+                      <span>Edit</span>
                     </button>
                     <button
                       class="btn-action btn-delete"
                       (click)="confirmDelete(course)"
-                      title="Xóa khóa học"
+                      title="Delete course"
                     >
                       <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -171,50 +171,50 @@ import { AdminService, AdminCourse } from '../../../core/services/admin.service'
       <div class="modal-backdrop" *ngIf="isModalOpen()">
         <div class="modal-card">
           <div class="modal-header">
-            <h3>{{ editingCourseId() ? 'Chỉnh Sửa Khóa Học' : 'Thêm Khóa Học Mới' }}</h3>
+            <h3>{{ editingCourseId() ? 'Edit Course' : 'Add New Course' }}</h3>
             <button class="close-btn" (click)="closeModal()">✕</button>
           </div>
 
           <form [formGroup]="courseForm" (ngSubmit)="onSubmit()">
             <div class="modal-body">
               <div class="form-group">
-                <label>Tên Khóa Học *</label>
+                <label>Course Title *</label>
                 <input
                   type="text"
                   formControlName="title"
-                  placeholder="Ví dụ: Power English, VIP Global..."
+                  placeholder="e.g. Power English, VIP Global..."
                   (input)="onTitleChange()"
                 />
               </div>
 
               <div class="form-group">
-                <label>Đường dẫn tĩnh (Slug)</label>
+                <label>URL Slug</label>
                 <input
                   type="text"
                   formControlName="slug"
                   placeholder="power-english"
                 />
-                <span class="helper-text">Để trống để hệ thống tự tạo tự động từ tiêu đề.</span>
+                <span class="helper-text">Leave blank to auto-generate from title.</span>
               </div>
 
               <div class="form-row">
                 <div class="form-group">
-                  <label>Cấp độ (Level) *</label>
+                  <label>Level *</label>
                   <select formControlName="level">
-                    <option value="BEGINNER">BEGINNER (Cơ bản)</option>
-                    <option value="INTERMEDIATE">INTERMEDIATE (Trung cấp)</option>
-                    <option value="ADVANCED">ADVANCED (Nâng cao)</option>
+                    <option value="BEGINNER">BEGINNER</option>
+                    <option value="INTERMEDIATE">INTERMEDIATE</option>
+                    <option value="ADVANCED">ADVANCED</option>
                   </select>
                 </div>
 
                 <div class="form-group">
-                  <label>Thứ tự hiển thị</label>
+                  <label>Display Order</label>
                   <input type="number" formControlName="orderIndex" min="1" />
                 </div>
               </div>
 
               <div class="form-group">
-                <label>Ảnh đại diện (Thumbnail URL)</label>
+                <label>Thumbnail URL</label>
                 <input
                   type="text"
                   formControlName="thumbnailUrl"
@@ -223,28 +223,28 @@ import { AdminService, AdminCourse } from '../../../core/services/admin.service'
               </div>
 
               <div class="form-group">
-                <label>Mô tả chi tiết</label>
+                <label>Description</label>
                 <textarea
                   rows="3"
                   formControlName="description"
-                  placeholder="Mô tả mục tiêu, đối tượng và phương pháp học của khóa..."
+                  placeholder="Brief description of the course, goals, and target audience..."
                 ></textarea>
               </div>
 
               <div class="checkbox-group">
                 <input type="checkbox" id="isPublished" formControlName="isPublished" />
-                <label for="isPublished">Xuất bản công khai cho học viên truy cập ngay</label>
+                <label for="isPublished">Publish immediately for learners</label>
               </div>
             </div>
 
             <div class="modal-footer">
-              <button type="button" class="btn-cancel" (click)="closeModal()">Hủy</button>
+              <button type="button" class="btn-cancel" (click)="closeModal()">Cancel</button>
               <button
                 type="submit"
                 class="btn-submit"
                 [disabled]="courseForm.invalid || isSaving()"
               >
-                {{ isSaving() ? 'Đang lưu...' : (editingCourseId() ? 'Cập nhật' : 'Tạo mới') }}
+                {{ isSaving() ? 'Saving...' : (editingCourseId() ? 'Update' : 'Create') }}
               </button>
             </div>
           </form>
@@ -311,7 +311,7 @@ export class CourseListComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.errorMessage.set('Không thể tải danh sách khóa học. Vui lòng thử lại!');
+        this.errorMessage.set('Unable to load courses. Please try again!');
         this.isLoading.set(false);
       },
     });
@@ -377,14 +377,14 @@ export class CourseListComponent implements OnInit {
       error: () => {
         // Revert toggle state on error
         input.checked = !newStatus;
-        alert('Lỗi: Không thể cập nhật trạng thái xuất bản.');
+        alert('Error: Unable to update publish status.');
       },
     });
   }
 
   confirmDelete(course: AdminCourse): void {
     const confirmed = confirm(
-      `CẢNH BÁO: Bạn có chắc chắn muốn xóa khóa học "${course.title}"?\nToàn bộ bài học, từ vựng và audio liên quan sẽ bị xóa!`,
+      `WARNING: Are you sure you want to delete course "${course.title}"?\nAll associated lessons, vocabularies, and audios will be deleted!`,
     );
     if (!confirmed) return;
 
@@ -393,7 +393,7 @@ export class CourseListComponent implements OnInit {
         this.courses.update((list: AdminCourse[]) => list.filter((c: AdminCourse) => c.id !== course.id));
       },
       error: () => {
-        alert('Không thể xóa khóa học. Vui lòng kiểm tra lại quyền truy cập!');
+        alert('Unable to delete course. Please check your permissions!');
       },
     });
   }
@@ -417,7 +417,7 @@ export class CourseListComponent implements OnInit {
         },
         error: (err: HttpErrorResponse) => {
           this.isSaving.set(false);
-          alert('Lỗi khi cập nhật khóa học: ' + (err.error?.message || err.message));
+          alert('Error updating course: ' + (err.error?.message || err.message));
         },
       });
     } else {
@@ -430,7 +430,7 @@ export class CourseListComponent implements OnInit {
         },
         error: (err: HttpErrorResponse) => {
           this.isSaving.set(false);
-          alert('Lỗi khi tạo mới khóa học: ' + (err.error?.message || err.message));
+          alert('Error creating course: ' + (err.error?.message || err.message));
         },
       });
     }

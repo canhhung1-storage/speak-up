@@ -1,0 +1,447 @@
+<div class="workspace-shell">
+  <!-- Top Navigation Bar -->
+  <header class="workspace-topbar">
+    <div class="topbar-container">
+      <div class="topbar-left">
+        <a [routerLink]="['/courses']" class="btn-back" title="Back to Courses">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          <span class="btn-back-text">Courses</span>
+        </a>
+
+        <div class="lesson-meta-badge">
+          <span class="course-name">{{ lesson()?.courseTitle || 'Flow English' }}</span>
+          <span class="separator">/</span>
+          <h1 class="lesson-title">{{ lesson()?.title || 'Loading...' }}</h1>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <!-- Theme Toggle -->
+        <button
+          type="button"
+          class="theme-toggle-btn"
+          (click)="themeService.toggleTheme()"
+          [title]="themeService.isDark() ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+        >
+          <svg *ngIf="themeService.isDark()" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <svg *ngIf="!themeService.isDark()" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+
+        <!-- User Info -->
+        <div class="user-pill">
+          <span class="user-avatar">{{ authService.currentUser()?.fullName?.charAt(0) || 'U' }}</span>
+          <span class="user-name">{{ authService.currentUser()?.fullName || 'Learner' }}</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Loading State -->
+  <div class="state-container" *ngIf="isLoading()">
+    <div class="spinner"></div>
+    <p>Loading interactive learning workspace...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="state-container error-state" *ngIf="!isLoading() && errorMessage()">
+    <div class="error-icon">⚠️</div>
+    <p>{{ errorMessage() }}</p>
+    <button class="btn-retry" (click)="loadLessonData(courseSlug(), lessonSlug())">Retry</button>
+  </div>
+
+  <!-- Main Content Area -->
+  <main class="workspace-main" *ngIf="!isLoading() && lesson()">
+    <div class="workspace-container">
+      
+      <!-- 3 Tabs Navigation Bar -->
+      <nav class="workspace-tabs-nav">
+        <button
+          type="button"
+          class="tab-btn"
+          [class.active]="activeTab() === 'story'"
+          (click)="activeTab.set('story')"
+        >
+          <span class="tab-icon">📖</span>
+          <span class="tab-label">1. Story & Article</span>
+        </button>
+
+        <button
+          type="button"
+          class="tab-btn"
+          [class.active]="activeTab() === 'vocab'"
+          (click)="activeTab.set('vocab')"
+        >
+          <span class="tab-icon">💡</span>
+          <span class="tab-label">2. Core Vocabulary</span>
+          <span class="tab-badge">{{ lesson()?.vocabularies?.length || 0 }}</span>
+        </button>
+
+        <button
+          type="button"
+          class="tab-btn"
+          [class.active]="activeTab() === 'audios'"
+          (click)="activeTab.set('audios')"
+        >
+          <span class="tab-icon">🎧</span>
+          <span class="tab-label">3. Audio & Mini-Story</span>
+          <span class="tab-badge" *ngIf="playlist().length">{{ playlist().length }}</span>
+        </button>
+      </nav>
+
+      <!-- TAB 1: BÀI ĐỌC (STORY VIEWER & INTERACTIVE LOOKUP) -->
+      <section class="tab-pane" *ngIf="activeTab() === 'story'">
+        <div
+          class="story-viewer-card"
+          tabindex="0"
+          role="region"
+          aria-label="Story reading area"
+          (click)="onStoryClick($event)"
+          (keydown.escape)="closePopover()"
+        >
+          <!-- Story Header -->
+          <div class="story-header">
+            <h2 class="story-title">{{ lesson()?.article?.title || lesson()?.title }}</h2>
+            <div class="story-hint">
+              <span class="hint-icon">💡</span>
+              <span>Click highlighted words to view instant definitions and examples.</span>
+            </div>
+          </div>
+
+          <!-- Story Content (Prose) -->
+          <article
+            class="story-prose"
+            *ngIf="lesson()?.article?.content; else noStoryTemplate"
+            [innerHTML]="lesson()?.article?.content"
+          ></article>
+
+          <!-- Empty Story Template -->
+          <ng-template #noStoryTemplate>
+            <div class="empty-story-box">
+              <div class="empty-icon">🎧</div>
+              <h3>Deep Auditory Training Lesson</h3>
+              <p>This lesson is designed for 100% effortless listening immersion. Put on your headphones and switch to the Audio tab to practice reflex training with AJ Hoge!</p>
+              <button class="btn-go-audio" (click)="activeTab.set('audios')">
+                <span>Switch to Audio Player</span>
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </button>
+            </div>
+          </ng-template>
+
+          <!-- Interactive Vocab Popover -->
+          <div
+            class="vocab-popover-box"
+            *ngIf="activePopover()"
+            [style.left.px]="activePopover()!.x"
+            [style.top.px]="activePopover()!.y"
+          >
+            <div class="popover-header">
+              <span class="popover-badge">Lesson Vocabulary</span>
+              <button class="btn-close-popover" (click)="closePopover()">✕</button>
+            </div>
+            <h4 class="popover-word">{{ activePopover()!.word }}</h4>
+            <p class="popover-def" *ngIf="activePopover()!.definitionEn">
+              <strong>Definition:</strong> {{ activePopover()!.definitionEn }}
+            </p>
+            <p class="popover-example" *ngIf="activePopover()!.exampleSentence">
+              <strong>Example:</strong> <em>"{{ activePopover()!.exampleSentence }}"</em>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: TỪ VỰNG TRỌNG TÂM & FLASHCARD 3D -->
+      <section class="tab-pane" *ngIf="activeTab() === 'vocab'">
+        <div class="vocab-section-wrapper">
+          <!-- View Mode Switcher Header -->
+          <div class="vocab-header-bar">
+            <div class="mode-toggles">
+              <button
+                type="button"
+                class="mode-btn"
+                [class.active]="vocabMode() === 'list'"
+                (click)="vocabMode.set('list')"
+              >
+                <span>📋 Word List</span>
+              </button>
+              <button
+                type="button"
+                class="mode-btn"
+                [class.active]="vocabMode() === 'flashcard'"
+                (click)="vocabMode.set('flashcard')"
+              >
+                <span>🃏 3D Flashcards</span>
+              </button>
+            </div>
+
+            <!-- Flashcard Quick Actions -->
+            <div class="flashcard-actions" *ngIf="vocabMode() === 'flashcard' && flashcardList().length">
+              <span class="card-counter">
+                Word <strong>{{ currentCardIndex() + 1 }}</strong> of {{ flashcardList().length }}
+              </span>
+              <button class="btn-shuffle" (click)="shuffleFlashcards()" title="Shuffle Flashcards">
+                🔀 Shuffle
+              </button>
+            </div>
+          </div>
+
+          <!-- Mode 1: Grid List View -->
+          <div class="vocab-grid-list" *ngIf="vocabMode() === 'list'">
+            <div
+              class="vocab-learner-card"
+              *ngFor="let item of lesson()?.vocabularies; let i = index"
+            >
+              <div class="card-top">
+                <span class="vocab-num">#{{ i + 1 }}</span>
+                <h3 class="vocab-word-heading">{{ item.word }}</h3>
+              </div>
+              
+              <div class="card-body">
+                <div class="def-group" *ngIf="item.definitionEn">
+                  <span class="def-label">Definition:</span>
+                  <p class="def-text">{{ item.definitionEn }}</p>
+                </div>
+
+                <div class="example-group" *ngIf="item.exampleSentence">
+                  <span class="example-label">Example Sentence:</span>
+                  <p class="example-text">"{{ item.exampleSentence }}"</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mode 2: 3D Flashcard View -->
+          <div class="flashcard-workspace" *ngIf="vocabMode() === 'flashcard'">
+            <div class="flashcard-scene" *ngIf="currentCard()">
+              <div
+                class="flashcard-3d"
+                [class.flipped]="isCardFlipped()"
+                tabindex="0"
+                role="button"
+                [attr.aria-label]="isCardFlipped() ? 'Flashcard back face' : 'Flashcard front face'"
+                (click)="flipCard()"
+                (keydown.space)="flipCard()"
+              >
+                <!-- FRONT OF CARD -->
+                <div class="card-face card-front">
+                  <span class="face-tag">Vocabulary</span>
+                  <h2 class="front-word">{{ currentCard()!.word }}</h2>
+                  <div class="flip-hint">
+                    <span class="flip-icon">🔄</span>
+                    <span>Click or press [Space] to flip card</span>
+                  </div>
+                </div>
+
+                <!-- BACK OF CARD -->
+                <div class="card-face card-back">
+                  <span class="face-tag">Definition & Example</span>
+                  <div class="back-content">
+                    <p class="back-definition" *ngIf="currentCard()!.definitionEn">
+                      {{ currentCard()!.definitionEn }}
+                    </p>
+                    <div class="back-example-box" *ngIf="currentCard()!.exampleSentence">
+                      <span class="example-title">Context Example:</span>
+                      <p class="back-example">"{{ currentCard()!.exampleSentence }}"</p>
+                    </div>
+                  </div>
+                  <div class="flip-hint">
+                    <span>Click or press [Space] to flip back</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Flashcard Navigation Controls -->
+            <div class="flashcard-controls" *ngIf="flashcardList().length">
+              <button class="nav-btn prev-btn" (click)="prevCard()" title="Previous [Left Arrow]">
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                <span>Previous</span>
+              </button>
+
+              <button class="btn-flip-trigger" (click)="flipCard()">
+                <span>{{ isCardFlipped() ? 'Flip Front' : 'Flip Back' }}</span>
+              </button>
+
+              <button class="nav-btn next-btn" (click)="nextCard()" title="Next [Right Arrow]">
+                <span>Next</span>
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: DANH SÁCH BÀI NGHE & LỜI THOẠI -->
+      <section class="tab-pane" *ngIf="activeTab() === 'audios'">
+        <div class="audios-section-grid">
+          <!-- Left: Playlist Selector -->
+          <div class="playlist-column">
+            <h3 class="column-title">Audio Tracks ({{ playlist().length }})</h3>
+            
+            <div class="playlist-cards">
+              <div
+                class="playlist-item-card"
+                *ngFor="let track of playlist()"
+                [class.active]="currentTrack()?.id === track.id"
+                tabindex="0"
+                role="button"
+                [attr.aria-label]="'Play ' + track.title"
+                (click)="selectTrack(track)"
+                (keydown.enter)="selectTrack(track)"
+                (keydown.space)="selectTrack(track)"
+              >
+                <div class="track-status-icon">
+                  <span *ngIf="currentTrack()?.id === track.id && isPlaying()">🔊</span>
+                  <span *ngIf="!(currentTrack()?.id === track.id && isPlaying())">▶</span>
+                </div>
+
+                <div class="track-details">
+                  <div class="track-tags">
+                    <span class="track-type-badge" [ngClass]="getBadgeClass(track.audioType)">
+                      {{ getTypeLabel(track.audioType) }}
+                    </span>
+                  </div>
+                  <h4 class="track-name">{{ track.title }}</h4>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Transcript Viewer -->
+          <div class="transcript-column">
+            <div class="transcript-card" *ngIf="currentTrack()">
+              <div class="transcript-header">
+                <div>
+                  <span class="transcript-badge">{{ getTypeLabel(currentTrack()!.audioType) }}</span>
+                  <h3 class="transcript-title">{{ currentTrack()!.title }}</h3>
+                </div>
+              </div>
+
+              <!-- Transcript Text Box -->
+              <div class="transcript-body" *ngIf="currentTrack()!.transcript; else noTranscriptTemplate">
+                <div class="transcript-text" [innerHTML]="currentTrack()!.transcript"></div>
+              </div>
+
+              <ng-template #noTranscriptTemplate>
+                <div class="no-transcript-box">
+                  <span class="no-trans-icon">🎙️</span>
+                  <p>This track focuses on effortless reflex listening. Listen actively and answer AJ Hoge's questions out loud!</p>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- STICKY BOTTOM AUDIO REFLEX PLAYER (ALWAYS AVAILABLE) -->
+  <footer class="sticky-player-bar" *ngIf="currentTrack()">
+    <div class="player-container">
+      <!-- Hidden Native Audio Engine -->
+      <audio
+        #audioPlayerRef
+        [src]="currentTrack()!.audioUrl"
+        preload="metadata"
+        (timeupdate)="onAudioTimeUpdate()"
+        (loadedmetadata)="onAudioLoadedMetadata()"
+        (ended)="onAudioEnded()"
+      ></audio>
+
+      <!-- Left: Track Info -->
+      <div class="player-track-meta">
+        <span class="player-badge" [ngClass]="getBadgeClass(currentTrack()!.audioType)">
+          {{ getTypeLabel(currentTrack()!.audioType) }}
+        </span>
+        <span class="player-track-title" [title]="currentTrack()!.title">{{ currentTrack()!.title }}</span>
+      </div>
+
+      <!-- Center: Main Playback Controls & Scrubber -->
+      <div class="player-center-controls">
+        <div class="control-buttons">
+          <!-- Replay -5s -->
+          <button class="btn-skip" (click)="skip(-5)" title="Rewind 5 seconds (-5s)">
+            <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.334 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z" />
+            </svg>
+            <span class="skip-label">5s</span>
+          </button>
+
+          <!-- Play / Pause Button -->
+          <button class="btn-play-pause" (click)="togglePlay()" [title]="isPlaying() ? 'Pause' : 'Play'">
+            <!-- Pause Icon -->
+            <svg *ngIf="isPlaying()" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+              <path fill-rule="evenodd" d="M6.75 5.25a.75.75 0 01.75.75v12a.75.75 0 01-1.5 0v-12a.75.75 0 01.75-.75zm10.5 0a.75.75 0 01.75.75v12a.75.75 0 01-1.5 0v-12a.75.75 0 01.75-.75z" clip-rule="evenodd" />
+            </svg>
+            <!-- Play Icon -->
+            <svg *ngIf="!isPlaying()" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+              <path fill-rule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z" clip-rule="evenodd" />
+            </svg>
+          </button>
+
+          <!-- Forward +5s -->
+          <button class="btn-skip" (click)="skip(5)" title="Forward 5 seconds (+5s)">
+            <span class="skip-label">5s</span>
+            <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Progress Timeline Scrubber -->
+        <div class="player-timeline">
+          <span class="time-label">{{ formattedCurrentTime() }}</span>
+          <div class="scrubber-wrapper">
+            <input
+              type="range"
+              class="scrubber-input"
+              min="0"
+              max="100"
+              step="0.1"
+              [value]="progressPercent()"
+              (input)="onScrubberChange($event)"
+            />
+            <div class="scrubber-progress-fill" [style.width.%]="progressPercent()"></div>
+          </div>
+          <span class="time-label duration-label">{{ formattedDuration() }}</span>
+        </div>
+      </div>
+
+      <!-- Right: Playback Speed & Volume Controls -->
+      <div class="player-right-controls">
+        <!-- Speed Cycle Button -->
+        <button
+          type="button"
+          class="btn-speed"
+          (click)="cyclePlaybackRate()"
+          [title]="'Playback Speed: ' + playbackRate() + 'x'"
+        >
+          {{ playbackRate() }}x
+        </button>
+
+        <!-- Mute / Unmute -->
+        <button type="button" class="btn-mute" (click)="toggleMute()" [title]="isMuted() ? 'Unmute' : 'Mute'">
+          <svg *ngIf="!isMuted()" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+          </svg>
+          <svg *ngIf="isMuted()" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </footer>
+</div>

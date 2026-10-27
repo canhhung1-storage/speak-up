@@ -16,26 +16,26 @@ import { AdminService, AdminCourse, AdminLessonDetail } from '../../../core/serv
           <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
-          <span>Quay lại Quản lý Khóa học</span>
+          <span>Back to Course Management</span>
         </a>
       </div>
 
       <!-- Header -->
       <header class="page-header">
         <div class="header-info">
-          <h2>Bài Học: {{ course()?.title || 'Đang tải...' }}</h2>
-          <p>Quản lý nội dung bài đọc, từ vựng và hệ thống audio phản xạ của khóa học này</p>
+          <h2>Lessons: {{ course()?.title || 'Loading...' }}</h2>
+          <p>Manage story articles, core vocabulary, and reflex audio tracks for this course</p>
         </div>
 
         <div class="header-actions">
           @if (isSavingOrder()) {
             <span class="order-status-badge saving">
               <span class="pulse-dot"></span>
-              Đang lưu thứ tự...
+              Saving order...
             </span>
           } @else if (orderSaveSuccess()) {
             <span class="order-status-badge saved">
-              ✓ Đã lưu thứ tự bài học
+              ✓ Lesson order saved
             </span>
           }
 
@@ -46,7 +46,7 @@ import { AdminService, AdminCourse, AdminLessonDetail } from '../../../core/serv
             <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
-            <span>Thêm Bài Học Mới</span>
+            <span>Add New Lesson</span>
           </a>
         </div>
       </header>
@@ -56,18 +56,18 @@ import { AdminService, AdminCourse, AdminLessonDetail } from '../../../core/serv
         <!-- Loading -->
         <div *ngIf="isLoading()" class="state-box">
           <div class="spinner"></div>
-          <p>Đang tải danh sách bài học...</p>
+          <p>Loading lessons...</p>
         </div>
 
         <!-- Error -->
         <div *ngIf="errorMessage() && !isLoading()" class="state-box" style="color: #ef4444;">
           <p>{{ errorMessage() }}</p>
-          <button class="btn-action" style="margin: 1rem auto 0;" (click)="loadData()">Thử lại</button>
+          <button class="btn-action" style="margin: 1rem auto 0;" (click)="loadData()">Retry</button>
         </div>
 
         <!-- Empty -->
         <div *ngIf="!isLoading() && !errorMessage() && lessons().length === 0" class="state-box">
-          <p>Khóa học này hiện chưa có bài học nào. Hãy thêm bài học đầu tiên!</p>
+          <p>This course has no lessons yet. Add your first lesson!</p>
         </div>
 
         <!-- Lessons Table with Drag & Drop -->
@@ -75,12 +75,12 @@ import { AdminService, AdminCourse, AdminLessonDetail } from '../../../core/serv
           <table class="admin-table">
             <thead>
               <tr>
-                <th style="width: 48px; text-align: center;" title="Kéo thả để sắp xếp">Sắp xếp</th>
-                <th style="width: 70px;">Thứ tự</th>
-                <th>Tên bài học</th>
-                <th>Mô tả</th>
-                <th>Dữ liệu thành phần</th>
-                <th style="text-align: right;">Hành động</th>
+                <th style="width: 48px; text-align: center;" title="Drag & drop to reorder">Reorder</th>
+                <th style="width: 70px;">Order</th>
+                <th>Lesson Title</th>
+                <th>Description</th>
+                <th>Content Components</th>
+                <th style="text-align: right;">Actions</th>
               </tr>
             </thead>
             <tbody
@@ -98,7 +98,7 @@ import { AdminService, AdminCourse, AdminLessonDetail } from '../../../core/serv
                 <td
                   class="drag-handle-cell"
                   cdkDragHandle
-                  title="Giữ chuột và kéo thả để đổi thứ tự"
+                  title="Drag and drop to reorder"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="9" cy="5" r="1"/>
@@ -123,7 +123,7 @@ import { AdminService, AdminCourse, AdminLessonDetail } from '../../../core/serv
 
                 <!-- Description -->
                 <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-secondary); font-size: 0.85rem;">
-                  {{ lesson.description || 'Chưa có mô tả' }}
+                  {{ lesson.description || 'No description provided' }}
                 </td>
 
                 <!-- Components badges -->
@@ -132,21 +132,21 @@ import { AdminService, AdminCourse, AdminLessonDetail } from '../../../core/serv
                     <span
                       class="content-badge badge-article"
                       *ngIf="lesson.hasArticle"
-                      title="Có bài đọc"
+                      title="Article included"
                     >
-                      ✓ Bài đọc
+                      ✓ Article
                     </span>
                     <span
                       class="content-badge badge-vocab"
                       *ngIf="lesson.totalVocabularies > 0"
                     >
-                      {{ lesson.totalVocabularies }} Từ vựng
+                      {{ lesson.totalVocabularies }} Vocab
                     </span>
                     <span
                       class="content-badge badge-audio"
                       *ngIf="lesson.totalAudios > 0"
                     >
-                      {{ lesson.totalAudios }} Audio phụ
+                      {{ lesson.totalAudios }} Audio tracks
                     </span>
                   </div>
                 </td>
@@ -157,17 +157,17 @@ import { AdminService, AdminCourse, AdminLessonDetail } from '../../../core/serv
                     <a
                       [routerLink]="['/admin/courses', courseSlug(), 'lessons', lesson.slug || lesson.id, 'edit']"
                       class="btn-action btn-studio"
-                      title="Chỉnh sửa nội dung trong Studio"
+                      title="Edit in Studio"
                     >
                       <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                       </svg>
-                      <span>Vào Studio</span>
+                      <span>Open Studio</span>
                     </a>
                     <button
                       class="btn-action btn-delete"
                       (click)="confirmDelete(lesson)"
-                      title="Xóa bài học"
+                      title="Delete lesson"
                     >
                       <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -225,7 +225,7 @@ export class LessonListComponent implements OnInit {
         this.courseId.set(courseData.id);
       },
       error: () => {
-        this.errorMessage.set('Không thể tải thông tin khóa học.');
+        this.errorMessage.set('Unable to load course info.');
       },
     });
 
@@ -236,7 +236,7 @@ export class LessonListComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.errorMessage.set('Không thể tải danh sách bài học.');
+        this.errorMessage.set('Unable to load lesson list.');
         this.isLoading.set(false);
       },
     });
@@ -268,7 +268,7 @@ export class LessonListComponent implements OnInit {
       error: (err: unknown) => {
         console.error('Failed to reorder lessons:', err);
         this.isSavingOrder.set(false);
-        alert('Lỗi: Không thể lưu thứ tự bài học mới!');
+        alert('Error: Unable to save new lesson order!');
         this.loadData(); // Rollback
       },
     });
@@ -276,7 +276,7 @@ export class LessonListComponent implements OnInit {
 
   confirmDelete(lesson: AdminLessonDetail): void {
     const confirmed = confirm(
-      `Bạn có chắc chắn muốn xóa bài học "${lesson.title}"?\nNội dung bài đọc, từ vựng và audio phụ liên quan sẽ bị xóa!`,
+      `Are you sure you want to delete lesson "${lesson.title}"?\nAll associated article content, vocabulary, and audio tracks will be deleted!`,
     );
     if (!confirmed) return;
 
@@ -285,7 +285,7 @@ export class LessonListComponent implements OnInit {
         this.lessons.update((list: AdminLessonDetail[]) => list.filter((l: AdminLessonDetail) => l.id !== lesson.id));
       },
       error: () => {
-        alert('Lỗi: Không thể xóa bài học.');
+        alert('Error: Unable to delete lesson.');
       },
     });
   }

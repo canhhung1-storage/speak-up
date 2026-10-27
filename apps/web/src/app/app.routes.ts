@@ -26,6 +26,14 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'courses/:courseSlug/lessons/:lessonSlug',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import(
+        './features/learning/lesson-workspace/lesson-workspace.component'
+      ).then((m) => m.LessonWorkspaceComponent),
+  },
+  {
     path: 'admin',
     canActivate: [adminGuard],
     loadComponent: () =>

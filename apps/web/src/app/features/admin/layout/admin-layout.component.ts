@@ -34,7 +34,7 @@ import { ThemeService } from '../../../core/services/theme.service';
         </div>
 
         <nav class="sidebar-nav">
-          <div class="nav-label">Quản lý nội dung</div>
+          <div class="nav-label">Content Management</div>
           <a
             routerLink="/admin/courses"
             routerLinkActive="active"
@@ -44,11 +44,11 @@ import { ThemeService } from '../../../core/services/theme.service';
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
             </svg>
-            <span>Khóa học & Bài học</span>
+            <span>Courses & Lessons</span>
           </a>
 
           <div class="nav-divider"></div>
-          <div class="nav-label">Chuyển hướng</div>
+          <div class="nav-label">Navigation</div>
           <a
             routerLink="/courses"
             class="nav-item"
@@ -57,7 +57,7 @@ import { ThemeService } from '../../../core/services/theme.service';
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            <span>Về Cổng Học Viên</span>
+            <span>Learner Portal</span>
           </a>
         </nav>
 
@@ -77,18 +77,18 @@ import { ThemeService } from '../../../core/services/theme.service';
           </div>
 
           <div class="footer-actions">
-            <button class="btn-action" (click)="toggleTheme()" title="Đổi giao diện Sáng / Tối">
+            <button class="btn-action" (click)="toggleTheme()" title="Toggle Light / Dark Mode">
               <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path *ngIf="isDarkMode()" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                 <path *ngIf="!isDarkMode()" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
               </svg>
-              <span>{{ isDarkMode() ? 'Sáng' : 'Tối' }}</span>
+              <span>{{ isDarkMode() ? 'Light' : 'Dark' }}</span>
             </button>
-            <button class="btn-action" (click)="logout()" title="Đăng xuất">
+            <button class="btn-action" (click)="logout()" title="Sign Out">
               <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
-              <span>Thoát</span>
+              <span>Sign Out</span>
             </button>
           </div>
         </div>
@@ -103,11 +103,11 @@ import { ThemeService } from '../../../core/services/theme.service';
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            <h1 class="topbar-title">Hệ Thống Quản Trị Nội Dung</h1>
+            <h1 class="topbar-title">Content Management System</h1>
           </div>
 
           <div class="topbar-right">
-            <a href="/api/docs" target="_blank" class="swagger-pill" title="Mở Interactive Swagger OpenAPI Documentation">
+            <a href="/api/docs" target="_blank" class="swagger-pill" title="Open Interactive Swagger OpenAPI Documentation">
               <span class="dot"></span>
               <span>OpenAPI Docs</span>
             </a>

@@ -1,3 +1,9 @@
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
 .breadcrumb-nav {
   margin-bottom: 1.5rem;
 
@@ -113,13 +119,18 @@
   border-radius: 14px;
   overflow: hidden;
   box-shadow: var(--card-shadow);
+  width: 100%;
+  min-width: 0;
 
   .table-responsive {
+    width: 100%;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .admin-table {
     width: 100%;
+    min-width: 780px;
     border-collapse: collapse;
     text-align: left;
     font-size: 0.9rem;
