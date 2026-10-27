@@ -11,6 +11,9 @@ import { CreateCourseDto } from '../dto/create-course.dto';
 import { UpdateCourseDto } from '../dto/update-course.dto';
 import { AdminCourseResponseDto } from '../dto/admin-course-response.dto';
 
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 @Injectable()
 export class AdminCoursesService {
   private readonly logger = new Logger(AdminCoursesService.name);
@@ -19,6 +22,29 @@ export class AdminCoursesService {
     @InjectRepository(Course)
     private readonly courseRepository: Repository<Course>,
   ) {}
+
+  private isUUID(value: string): boolean {
+    return UUID_REGEX.test(value);
+  }
+
+  /**
+   * Helper tìm kiếm Course theo UUID hoặc SEO Slug
+   */
+  private async findCourseEntity(
+    idOrSlug: string,
+    withRelations = true,
+  ): Promise<Course> {
+    const course = await this.courseRepository.findOne({
+      where: this.isUUID(idOrSlug) ? { id: idOrSlug } : { slug: idOrSlug },
+      relations: withRelations ? ['lessons'] : undefined,
+    });
+
+    if (!course) {
+      throw new NotFoundException(`Khóa học với định danh '${idOrSlug}' không tồn tại`);
+    }
+
+    return course;
+  }
 
   /**
    * Lấy toàn bộ danh sách khóa học (kể cả bản nháp) phục vụ quản trị
@@ -35,18 +61,10 @@ export class AdminCoursesService {
   }
 
   /**
-   * Lấy chi tiết 1 khóa học theo ID
+   * Lấy chi tiết 1 khóa học theo ID hoặc Slug
    */
-  async findOne(id: string): Promise<AdminCourseResponseDto> {
-    const course = await this.courseRepository.findOne({
-      where: { id },
-      relations: ['lessons'],
-    });
-
-    if (!course) {
-      throw new NotFoundException(`Khóa học với ID '${id}' không tồn tại`);
-    }
-
+  async findOne(idOrSlug: string): Promise<AdminCourseResponseDto> {
+    const course = await this.findCourseEntity(idOrSlug, true);
     return this.mapToDto(course);
   }
 
@@ -76,23 +94,19 @@ export class AdminCoursesService {
   }
 
   /**
-   * Cập nhật thông tin khóa học
+   * Cập nhật thông tin khóa học theo ID hoặc Slug
    */
-  async update(id: string, dto: UpdateCourseDto): Promise<AdminCourseResponseDto> {
-    const course = await this.courseRepository.findOne({
-      where: { id },
-      relations: ['lessons'],
-    });
-
-    if (!course) {
-      throw new NotFoundException(`Khóa học với ID '${id}' không tồn tại`);
-    }
+  async update(
+    idOrSlug: string,
+    dto: UpdateCourseDto,
+  ): Promise<AdminCourseResponseDto> {
+    const course = await this.findCourseEntity(idOrSlug, true);
 
     if (dto.slug && dto.slug !== course.slug) {
       const existing = await this.courseRepository.findOne({
         where: { slug: dto.slug },
       });
-      if (existing) {
+      if (existing && existing.id !== course.id) {
         throw new ConflictException(`Đường dẫn slug '${dto.slug}' đã tồn tại`);
       }
       course.slug = dto.slug;
@@ -112,17 +126,10 @@ export class AdminCoursesService {
   }
 
   /**
-   * Bật/tắt nhanh trạng thái xuất bản (Publish / Draft toggle)
+   * Bật/tắt nhanh trạng thái xuất bản (Publish / Draft toggle) theo ID hoặc Slug
    */
-  async togglePublish(id: string): Promise<AdminCourseResponseDto> {
-    const course = await this.courseRepository.findOne({
-      where: { id },
-      relations: ['lessons'],
-    });
-
-    if (!course) {
-      throw new NotFoundException(`Khóa học với ID '${id}' không tồn tại`);
-    }
+  async togglePublish(idOrSlug: string): Promise<AdminCourseResponseDto> {
+    const course = await this.findCourseEntity(idOrSlug, true);
 
     course.isPublished = !course.isPublished;
     const saved = await this.courseRepository.save(course);
@@ -134,18 +141,18 @@ export class AdminCoursesService {
   }
 
   /**
-   * Xóa khóa học
+   * Xóa khóa học theo ID hoặc Slug
    */
-  async delete(id: string): Promise<{ success: boolean; message: string }> {
-    const course = await this.courseRepository.findOne({ where: { id } });
-    if (!course) {
-      throw new NotFoundException(`Khóa học với ID '${id}' không tồn tại`);
-    }
+  async delete(idOrSlug: string): Promise<{ success: boolean; message: string }> {
+    const course = await this.findCourseEntity(idOrSlug, false);
 
     await this.courseRepository.remove(course);
-    this.logger.log(`Deleted course: '${course.title}' (${id})`);
+    this.logger.log(`Deleted course: '${course.title}' (${course.id})`);
 
-    return { success: true, message: `Đã xóa thành công khóa học '${course.title}'` };
+    return {
+      success: true,
+      message: `Đã xóa thành công khóa học '${course.title}'`,
+    };
   }
 
   private mapToDto(course: Course): AdminCourseResponseDto {

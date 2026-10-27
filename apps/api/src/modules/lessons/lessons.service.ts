@@ -4,6 +4,9 @@ import { Repository } from 'typeorm';
 import { Lesson } from '../../database/entities/lesson.entity';
 import { LessonDetailResponseDto } from './dto/lesson-detail-response.dto';
 
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 @Injectable()
 export class LessonsService {
   private readonly logger = new Logger(LessonsService.name);
@@ -14,31 +17,46 @@ export class LessonsService {
   ) {}
 
   /**
-   * Lấy chi tiết bài học theo Course Slug và Lesson Slug kèm Article, Vocabularies và Audios
+   * Lấy chi tiết bài học theo Course Slug (hoặc UUID) và Lesson Slug (hoặc UUID)
    */
   async findByCourseAndLessonSlug(
-    courseSlug: string,
-    lessonSlug: string,
+    courseSlugOrId: string,
+    lessonSlugOrId: string,
   ): Promise<LessonDetailResponseDto> {
     this.logger.log(
-      `Fetching lesson: courseSlug='${courseSlug}', lessonSlug='${lessonSlug}'`,
+      `Fetching lesson: course='${courseSlugOrId}', lesson='${lessonSlugOrId}'`,
     );
 
-    const lesson = await this.lessonRepository
+    const isCourseUuid = UUID_REGEX.test(courseSlugOrId);
+    const isLessonUuid = UUID_REGEX.test(lessonSlugOrId);
+
+    const query = this.lessonRepository
       .createQueryBuilder('lesson')
       .innerJoinAndSelect('lesson.course', 'course')
       .leftJoinAndSelect('lesson.article', 'article')
       .leftJoinAndSelect('lesson.vocabularies', 'vocabularies')
-      .leftJoinAndSelect('lesson.audios', 'audios')
-      .where('course.slug = :courseSlug', { courseSlug })
-      .andWhere('lesson.slug = :lessonSlug', { lessonSlug })
+      .leftJoinAndSelect('lesson.audios', 'audios');
+
+    if (isCourseUuid) {
+      query.where('course.id = :courseRef', { courseRef: courseSlugOrId });
+    } else {
+      query.where('course.slug = :courseRef', { courseRef: courseSlugOrId });
+    }
+
+    if (isLessonUuid) {
+      query.andWhere('lesson.id = :lessonRef', { lessonRef: lessonSlugOrId });
+    } else {
+      query.andWhere('lesson.slug = :lessonRef', { lessonRef: lessonSlugOrId });
+    }
+
+    const lesson = await query
       .orderBy('vocabularies.orderIndex', 'ASC')
       .addOrderBy('audios.orderIndex', 'ASC')
       .getOne();
 
     if (!lesson) {
       throw new NotFoundException(
-        `Lesson '${lessonSlug}' not found in course '${courseSlug}'`,
+        `Lesson '${lessonSlugOrId}' not found in course '${courseSlugOrId}'`,
       );
     }
 
@@ -51,7 +69,6 @@ export class LessonsService {
       slug: lesson.slug,
       orderIndex: lesson.orderIndex,
       description: lesson.description,
-      vocabAudioUrl: lesson.vocabAudioUrl,
       article: lesson.article
         ? {
             id: lesson.article.id,
@@ -64,11 +81,8 @@ export class LessonsService {
       vocabularies: (lesson.vocabularies || []).map((vocab) => ({
         id: vocab.id,
         word: vocab.word,
-        ipa: vocab.ipa,
-        meaningVi: vocab.meaningVi,
         definitionEn: vocab.definitionEn,
         exampleSentence: vocab.exampleSentence,
-        audioUrl: vocab.audioUrl,
         orderIndex: vocab.orderIndex,
       })),
       audios: (lesson.audios || []).map((audio) => ({

@@ -67,3 +67,35 @@
      - Bổ sung `article`, `vocabularies`, `audios` vào `CreateLessonDto` và triển khai TypeORM transaction trong cả `create` và `update` của `AdminLessonsService`.
      - Đồng bộ hóa toàn bộ Model Frontend (`AdminArticle`, `AdminVocabulary`, `AdminAudio`, `AdminLessonDetail`) với DTO Backend.
 - **Files liên quan**: `apps/api/src/modules/admin/dto/`, `apps/api/src/modules/admin/services/admin-lessons.service.ts`, `apps/web/src/app/core/services/admin.service.ts`, `apps/web/src/app/features/admin/lessons/lesson-editor.component.ts`
+
+
+### [Mobile UI & CSS Flexbox] Course Modal Bottom Sheet vỡ layout & Badge trôi lên góc trên màn hình
+- **Ngày**: 2026-10-27
+- **Task**: Sửa lỗi giao diện Mobile Bottom Sheet khi click vào khóa học trên màn hình Dashboard (`/courses`)
+- **Chi tiết**:
+  1. **Hiện tượng:**
+     - Badge "CƠ BẢN" (`.level-badge`) bị bay ra ngoài modal, trôi lơ lửng ở góc trên bên trái màn hình (`top: 12px; left: 12px;`) đè lên Navbar.
+     - Bottom sheet bị cắt cụt phần dưới: chỉ thấy tiêu đề và heading "Danh sách bài học", danh sách các bài học và nút bấm dưới footer ("Đóng", "Bắt đầu bài 1") bị tràn xuống ngoài màn hình không cuộn tới được.
+  2. **Nguyên nhân gốc rễ:**
+     - `.level-badge` có CSS `position: absolute; top: 12px; left: 12px;` ở phạm vi toàn component thay vì scope trong `.card-thumb`. Khi đặt trong modal header mà các thẻ cha (`.modal-title-wrap`, `.modal-header`, `.modal-dialog`) không có `position: relative`, badge nhận `.modal-backdrop` (`position: fixed; inset: 0;`) làm gốc tọa độ.
+     - `.modal-dialog` dùng Flexbox dạng cột nhưng `.modal-header` và `.modal-footer` không có `flex-shrink: 0`, đồng thời `.modal-body` dùng `flex: 1` mà thiếu `min-height: 0` (mặc định flex item có `min-height: auto`), khiến modal container bị bung chiều cao vượt qua viewport điện thoại mà không kích hoạt thanh cuộn nội dung.
+  3. **Giải pháp triệt để:**
+     - Chuyển `.level-badge` mặc định sang `display: inline-flex; align-items: center; position: static;` và chỉ đặt `position: absolute` khi nằm trong `.card-thumb .level-badge`.
+     - Quy định rõ ràng trong modal flex column: `.modal-header` và `.modal-footer` có `flex-shrink: 0;`, `.modal-body` có `flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch;`.
+     - Bổ sung `max-height: 85dvh` và `env(safe-area-inset-bottom)` cho vùng an toàn trên thiết bị di động.
+- **Files liên quan**: `apps/web/src/app/features/learning/course-dashboard.component.ts`
+
+### [Admin CMS & Flexbox] Giao diện Admin bị tràn và che khuất lề phải (Right Overflow & Cutoff)
+- **Ngày**: 2026-10-27
+- **Task**: Khắc phục lỗi trang Quản lý Khóa học (`/admin/courses`) bị che khuất mép phải (nút Thêm Khóa Học, card stats và các nút thao tác Sửa/Xóa bị cắt cụt)
+- **Chi tiết**:
+  1. **Hiện tượng:** Trên màn hình tablet/laptop nhỏ (độ rộng ~1024px), nút `+ Thêm Khóa Học Mới` bị cắt thành `+ Thêm K...`, card thống kê thứ 3 và các nút thao tác Sửa/Xóa ở cột cuối của bảng bị tràn khỏi mép phải màn hình mà không thể cuộn tới được.
+  2. **Nguyên nhân gốc rễ:**
+     - Trong CSS Flexbox, `.admin-main` và `.admin-content-body` là flex item có `min-width: auto;` mặc định. Khi bảng `<table>` bên trong có kích thước nội tại lớn (tổng các cột > 800px) và component host element `<app-course-list>` không có `display: block; min-width: 0;`, toàn bộ container `.admin-main` bị kéo giãn vượt quá chiều rộng còn lại của màn hình (`100vw - 270px`).
+     - Đồng thời `body` có `overflow-x: hidden;` khiến phần nội dung bị tràn ra ngoài cửa sổ bị trình duyệt cắt đứt hoàn toàn.
+  3. **Giải pháp triệt để:**
+     - Giới hạn cứng kích thước cho `.admin-main`: `width: calc(100vw - 270px); max-width: calc(100vw - 270px); min-width: 0;` (và `100vw` khi mobile <= 900px).
+     - Bổ sung `min-width: 0; width: 100%; box-sizing: border-box;` cho `.admin-content-body`.
+     - Thêm `:host { display: block; width: 100%; min-width: 0; }` cho các component Admin (`course-list`, `lesson-list`, `lesson-editor`).
+     - Đặt `width: 100%; min-width: 0;` cho `.table-card` và `width: 100%; overflow-x: auto;` cho `.table-responsive` kèm `min-width: 820px;` cho `<table>`.
+- **Files liên quan**: `apps/web/src/app/features/admin/layout/admin-layout.component.scss`, `apps/web/src/app/features/admin/courses/course-list.component.scss`, `apps/web/src/app/features/admin/lessons/lesson-list.component.scss`

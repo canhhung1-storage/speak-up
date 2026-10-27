@@ -46,14 +46,6 @@ export class CreateLessonDto {
   description?: string;
 
   @ApiPropertyOptional({
-    description: 'Đường dẫn bài giảng audio giải thích từ vựng tổng quan',
-    example: 'https://assets.speakup.internal/audio/a-kiss-vocab.mp3',
-  })
-  @IsString()
-  @IsOptional()
-  vocabAudioUrl?: string;
-
-  @ApiPropertyOptional({
     description: 'Thứ tự bài học trong khóa',
     default: 1,
   })

@@ -5,6 +5,7 @@
 :root,
 html[data-theme='light'] {
   --bg-main: #fcfcfd;
+  --bg-body: #fcfcfd;
   --bg-surface: #ffffff;
   --bg-surface-elevated: #f8fafc;
   --bg-surface-hover: #f1f5f9;
@@ -37,6 +38,7 @@ html[data-theme='light'] {
 // --- CSS Variables for Dark Mode ---
 html[data-theme='dark'] {
   --bg-main: #0a0d14;
+  --bg-body: #0a0d14;
   --bg-surface: #111827;
   --bg-surface-elevated: #1e293b;
   --bg-surface-hover: #26334d;

@@ -1,3 +1,14 @@
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.courses-management {
+  width: 100%;
+  min-width: 0;
+}
+
 .page-header {
   display: flex;
   align-items: center;
@@ -83,6 +94,8 @@
   border-radius: 14px;
   overflow: hidden;
   box-shadow: var(--card-shadow);
+  width: 100%;
+  min-width: 0;
 
   .table-toolbar {
     padding: 1rem 1.5rem;
@@ -124,11 +137,14 @@
   }
 
   .table-responsive {
+    width: 100%;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .admin-table {
     width: 100%;
+    min-width: 820px;
     border-collapse: collapse;
     text-align: left;
     font-size: 0.9rem;
