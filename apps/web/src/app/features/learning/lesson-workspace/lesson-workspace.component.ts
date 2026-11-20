@@ -17,6 +17,7 @@ import {
   LearnerLessonDetail,
   LearnerVocabulary,
   LearnerAudioTrack,
+  LessonProgressResponse,
 } from '../../../core/services/learner.service';
 
 export interface PlayableTrack {
@@ -75,6 +76,15 @@ export class LessonWorkspaceComponent implements OnInit, OnDestroy {
   // Popover State (Story Word Lookup)
   readonly activePopover = signal<PopoverState | null>(null);
 
+  // Progress State
+  readonly lessonProgress = signal<LessonProgressResponse | null>(null);
+  readonly isCompleted = signal<boolean>(false);
+  readonly isSavingProgress = signal<boolean>(false);
+  readonly showCompletionBanner = signal<boolean>(false);
+  private initialSeekSeconds = 0;
+  private lastSavedSecond = 0;
+  private saveTimeout: ReturnType<typeof setTimeout> | null = null;
+
   // Audio Reflex Player State
   readonly playlist = signal<PlayableTrack[]>([]);
   readonly currentTrack = signal<PlayableTrack | null>(null);
@@ -121,6 +131,10 @@ export class LessonWorkspaceComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     window.removeEventListener('keydown', this.handleKeyDown);
+    if (this.saveTimeout) {
+      clearTimeout(this.saveTimeout);
+    }
+    this.saveProgressNow();
     if (this.audioPlayerRef?.nativeElement) {
       this.audioPlayerRef.nativeElement.pause();
     }
@@ -166,6 +180,31 @@ export class LessonWorkspaceComponent implements OnInit, OnDestroy {
         // Auto select first track if available
         if (tracks.length > 0) {
           this.currentTrack.set(tracks[0]);
+        }
+
+        // Fetch user learning progress if authenticated
+        if (this.authService.isAuthenticated()) {
+          this.learnerService.getLessonProgress(lSlug, cSlug).subscribe({
+            next: (prog) => {
+              this.lessonProgress.set(prog);
+              this.isCompleted.set(prog.isCompleted);
+
+              if (prog.lastTrackId) {
+                const savedTrack = tracks.find((t) => t.id === prog.lastTrackId);
+                if (savedTrack) {
+                  this.currentTrack.set(savedTrack);
+                }
+              }
+
+              if (prog.lastPlayedSeconds > 0) {
+                this.initialSeekSeconds = prog.lastPlayedSeconds;
+                this.currentTime.set(prog.lastPlayedSeconds);
+              }
+            },
+            error: (err) => {
+              console.warn('Could not load lesson progress:', err);
+            },
+          });
         }
 
         this.isLoading.set(false);
@@ -260,8 +299,12 @@ export class LessonWorkspaceComponent implements OnInit, OnDestroy {
 
   // --- Audio Reflex Player Controls ---
   selectTrack(track: PlayableTrack): void {
+    if (this.currentTrack()?.id !== track.id) {
+      this.saveProgressNow();
+    }
     this.currentTrack.set(track);
     this.isPlaying.set(true);
+    this.lastSavedSecond = 0;
 
     const player = this.audioPlayerRef?.nativeElement;
     if (player) {
@@ -280,6 +323,7 @@ export class LessonWorkspaceComponent implements OnInit, OnDestroy {
     } else {
       player.pause();
       this.isPlaying.set(false);
+      this.saveProgressNow();
     }
   }
 
@@ -328,6 +372,12 @@ export class LessonWorkspaceComponent implements OnInit, OnDestroy {
     const player = this.audioPlayerRef?.nativeElement;
     if (player) {
       this.currentTime.set(player.currentTime);
+
+      const curSec = Math.floor(player.currentTime);
+      if (Math.abs(curSec - this.lastSavedSecond) >= 5) {
+        this.lastSavedSecond = curSec;
+        this.scheduleProgressSync();
+      }
     }
   }
 
@@ -336,11 +386,18 @@ export class LessonWorkspaceComponent implements OnInit, OnDestroy {
     if (player && player.duration) {
       this.duration.set(player.duration);
       player.playbackRate = this.playbackRate();
+
+      if (this.initialSeekSeconds > 0) {
+        player.currentTime = Math.min(this.initialSeekSeconds, player.duration);
+        this.currentTime.set(player.currentTime);
+        this.initialSeekSeconds = 0;
+      }
     }
   }
 
   onAudioEnded(): void {
     this.isPlaying.set(false);
+    this.saveProgressNow();
     // Auto advance to next track in playlist
     const list = this.playlist();
     const cur = this.currentTrack();
@@ -350,6 +407,85 @@ export class LessonWorkspaceComponent implements OnInit, OnDestroy {
     if (idx >= 0 && idx < list.length - 1) {
       this.selectTrack(list[idx + 1]);
     }
+  }
+
+  // --- Learning Progress Sync ---
+  scheduleProgressSync(): void {
+    if (!this.authService.isAuthenticated()) return;
+    if (this.saveTimeout) {
+      clearTimeout(this.saveTimeout);
+    }
+    this.saveTimeout = setTimeout(() => {
+      this.saveProgressNow();
+    }, 1000);
+  }
+
+  saveProgressNow(): void {
+    if (!this.authService.isAuthenticated()) return;
+    const track = this.currentTrack();
+    const lSlug = this.lessonSlug();
+    const cSlug = this.courseSlug();
+    if (!track || !lSlug) return;
+
+    const curSec = Math.floor(this.currentTime());
+    this.learnerService
+      .updateLessonProgress(
+        lSlug,
+        {
+          lastTrackId: track.id,
+          lastPlayedSeconds: curSec,
+          status: this.isCompleted() ? 'COMPLETED' : 'IN_PROGRESS',
+          playbackPositions: { [track.id]: curSec },
+        },
+        cSlug,
+      )
+      .subscribe({
+        next: (res) => {
+          this.lessonProgress.set(res);
+        },
+        error: () => {
+          // Silently ignore autosave errors
+        },
+      });
+  }
+
+  toggleCompleteLesson(): void {
+    if (!this.authService.isAuthenticated()) return;
+    const lSlug = this.lessonSlug();
+    const cSlug = this.courseSlug();
+    if (!lSlug) return;
+
+    const nextCompleted = !this.isCompleted();
+    this.isSavingProgress.set(true);
+
+    this.learnerService
+      .updateLessonProgress(
+        lSlug,
+        {
+          isCompleted: nextCompleted,
+          lastTrackId: this.currentTrack()?.id,
+          lastPlayedSeconds: Math.floor(this.currentTime()),
+        },
+        cSlug,
+      )
+      .subscribe({
+        next: (res) => {
+          this.isCompleted.set(res.isCompleted);
+          this.lessonProgress.set(res);
+          this.isSavingProgress.set(false);
+          if (res.isCompleted) {
+            this.showCompletionBanner.set(true);
+          }
+        },
+        error: (err) => {
+          console.error('Failed to update completion status:', err);
+          this.isSavingProgress.set(false);
+        },
+      });
+  }
+
+  closeCompletionBanner(): void {
+    this.showCompletionBanner.set(false);
   }
 
   // --- Format Utilities ---
