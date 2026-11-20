@@ -10,6 +10,7 @@ import {
 import { Lesson } from './lesson.entity';
 
 export enum AudioType {
+  VOCABULARY = 'VOCABULARY',
   MINI_STORY = 'MINI_STORY',
   COMMENTARY = 'COMMENTARY',
   POV = 'POV',

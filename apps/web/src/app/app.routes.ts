@@ -26,6 +26,14 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'courses/:courseSlug/lessons/:lessonSlug',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import(
+        './features/learning/lesson-workspace/lesson-workspace.component'
+      ).then((m) => m.LessonWorkspaceComponent),
+  },
+  {
     path: 'admin',
     canActivate: [adminGuard],
     loadComponent: () =>
@@ -46,21 +54,21 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'courses/:courseId/lessons',
+        path: 'courses/:courseSlug/lessons',
         loadComponent: () =>
           import('./features/admin/lessons/lesson-list.component').then(
             (m) => m.LessonListComponent,
           ),
       },
       {
-        path: 'courses/:courseId/lessons/create',
+        path: 'courses/:courseSlug/lessons/create',
         loadComponent: () =>
           import('./features/admin/lessons/lesson-editor.component').then(
             (m) => m.LessonEditorComponent,
           ),
       },
       {
-        path: 'courses/:courseId/lessons/:lessonId/edit',
+        path: 'courses/:courseSlug/lessons/:lessonSlug/edit',
         loadComponent: () =>
           import('./features/admin/lessons/lesson-editor.component').then(
             (m) => m.LessonEditorComponent,

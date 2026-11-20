@@ -38,6 +38,21 @@ export class UserLessonProgress {
   status: ProgressStatus;
 
   @Column({
+    name: 'last_track_id',
+    type: 'varchar',
+    length: 100,
+    nullable: true,
+  })
+  lastTrackId?: string;
+
+  @Column({
+    name: 'last_played_seconds',
+    type: 'integer',
+    default: 0,
+  })
+  lastPlayedSeconds: number;
+
+  @Column({
     type: 'jsonb',
     name: 'playback_positions',
     default: () => "'{}'",

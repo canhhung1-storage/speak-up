@@ -1,6 +1,9 @@
 .admin-shell {
   display: flex;
   min-height: 100vh;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
   background-color: var(--bg-main);
   color: var(--text-primary);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -263,9 +266,13 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  width: calc(100vw - 270px);
+  max-width: calc(100vw - 270px);
 
   @media (max-width: 900px) {
     margin-left: 0;
+    width: 100vw;
+    max-width: 100vw;
   }
 
   .admin-topbar {
@@ -352,6 +359,10 @@
   .admin-content-body {
     flex: 1;
     padding: 2rem;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 
     @media (max-width: 640px) {
       padding: 1rem;

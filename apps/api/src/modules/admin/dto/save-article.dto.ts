@@ -10,13 +10,13 @@ export class SaveArticleDto {
   @IsNotEmpty()
   title: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Nội dung bài đọc (hỗ trợ bôi đậm từ mới bằng thẻ <mark>word</mark>)',
     example: "Carlos buys a new car. It's a <mark>huge</mark>, blue, fast car...",
   })
   @IsString()
-  @IsNotEmpty()
-  content: string;
+  @IsOptional()
+  content?: string;
 
   @ApiPropertyOptional({
     description: 'URL file âm thanh đọc bài viết chính',

@@ -9,6 +9,7 @@ import { CoursesModule } from './modules/courses/courses.module';
 import { LessonsModule } from './modules/lessons/lessons.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { ProgressModule } from './modules/progress/progress.module';
 import {
   User,
   Course,
@@ -35,6 +36,7 @@ import {
     CoursesModule,
     LessonsModule,
     AdminModule,
+    ProgressModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

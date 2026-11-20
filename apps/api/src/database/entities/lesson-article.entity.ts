@@ -20,10 +20,10 @@ export class LessonArticle {
   @Column({ length: 200 })
   title: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true, default: '' })
   content: string;
 
-  @Column({ name: 'audio_url', length: 500 })
+  @Column({ name: 'audio_url', length: 500, nullable: true, default: '' })
   audioUrl: string;
 
   @Column({ name: 'duration_seconds', default: 0 })
