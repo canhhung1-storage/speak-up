@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
@@ -67,6 +67,38 @@ export interface LearnerLessonDetail {
   audios: LearnerAudioTrack[];
 }
 
+export type ProgressStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
+
+export interface LessonProgressResponse {
+  lessonId: string;
+  lessonSlug: string;
+  status: ProgressStatus;
+  isCompleted: boolean;
+  lastTrackId?: string;
+  lastPlayedSeconds: number;
+  playbackPositions: Record<string, number>;
+  lastListenedAt: string;
+  completedAt?: string;
+}
+
+export interface CourseProgressResponse {
+  courseId: string;
+  courseSlug: string;
+  totalLessons: number;
+  completedLessons: number;
+  progressPercent: number;
+  lastAccessedLessonSlug?: string;
+  lessons: LessonProgressResponse[];
+}
+
+export interface UpdateProgressDto {
+  status?: ProgressStatus;
+  lastTrackId?: string;
+  lastPlayedSeconds?: number;
+  playbackPositions?: Record<string, number>;
+  isCompleted?: boolean;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -94,6 +126,51 @@ export class LearnerService {
   getLessonDetail(courseSlug: string, lessonSlug: string): Observable<LearnerLessonDetail> {
     return this.http.get<LearnerLessonDetail>(
       `${this.baseUrl}/courses/${courseSlug}/lessons/${lessonSlug}`,
+    );
+  }
+
+  /**
+   * Lấy tiến độ học tập tổng thể của một khóa học
+   */
+  getCourseProgress(courseSlugOrId: string): Observable<CourseProgressResponse> {
+    return this.http.get<CourseProgressResponse>(
+      `${this.baseUrl}/progress/courses/${courseSlugOrId}`,
+    );
+  }
+
+  /**
+   * Lấy tiến độ học tập của một bài học cụ thể
+   */
+  getLessonProgress(
+    lessonSlugOrId: string,
+    courseSlugOrId?: string,
+  ): Observable<LessonProgressResponse> {
+    let params = new HttpParams();
+    if (courseSlugOrId) {
+      params = params.set('course', courseSlugOrId);
+    }
+    return this.http.get<LessonProgressResponse>(
+      `${this.baseUrl}/progress/lessons/${lessonSlugOrId}`,
+      { params },
+    );
+  }
+
+  /**
+   * Cập nhật tiến độ học tập bài học (vị trí giây nghe, track đang phát, trạng thái hoàn thành)
+   */
+  updateLessonProgress(
+    lessonSlugOrId: string,
+    dto: UpdateProgressDto,
+    courseSlugOrId?: string,
+  ): Observable<LessonProgressResponse> {
+    let params = new HttpParams();
+    if (courseSlugOrId) {
+      params = params.set('course', courseSlugOrId);
+    }
+    return this.http.put<LessonProgressResponse>(
+      `${this.baseUrl}/progress/lessons/${lessonSlugOrId}`,
+      dto,
+      { params },
     );
   }
 }

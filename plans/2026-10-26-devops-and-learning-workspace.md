@@ -82,8 +82,14 @@
   - Phòng học Learner: `/courses/:courseSlug/lessons/:lessonSlug`
   - Đảm bảo 0 lint errors, 0 lint warnings và 0 build warnings.
 
-#### 🔹 Pha 5: Theo Dõi & Đồng Bộ Tiến Độ (Progress Tracking)
-- [ ] **Task 2.9:** Kết nối API ghi nhận tiến độ khi học viên hoàn thành bài học và hiển thị % hoàn thành trên Dashboard.
+#### 🔹 Pha 5: Theo Dõi & Đồng Bộ Tiến Độ (Progress Tracking - ĐÃ HOÀN THÀNH ✅)
+- [x] **Task 2.9 (Backend Progress Module):**
+  - Xây dựng `ProgressModule`, `ProgressController`, `ProgressService` (`GET /api/progress/courses/:courseSlugOrId`, `GET /api/progress/lessons/:lessonSlugOrId`, `PUT /api/progress/lessons/:lessonSlugOrId`).
+  - Mở rộng thực thể `UserLessonProgress` lưu vị trí giây nghe dở (`lastPlayedSeconds`), track audio đang nghe (`lastTrackId`), `playbackPositions` (JSONB) và trạng thái hoàn thành.
+- [x] **Task 2.10 (Frontend Progress Integration):**
+  - Cập nhật `LearnerService`: Bổ sung DTOs và 3 methods gọi API tiến độ.
+  - Cập nhật `CourseDashboardComponent`: Tự động tải tiến độ, hiển thị Progress Bar % hoàn thành trên từng thẻ khóa học, bổ sung nút "Resume" học tiếp, và đánh dấu tích xanh `✓` cho bài học đã hoàn thành trong curriculum modal.
+  - Cập nhật `LessonWorkspaceComponent`: Tự động khôi phục track & giây nghe dở khi mở bài học, tự động debounce lưu tiến độ ngầm mỗi 5 giây / khi tạm dừng / khi đổi track, và bổ sung nút "Mark as Completed" kèm banner chúc mừng mượt mà.
 
 ---
 

@@ -7,6 +7,7 @@ import {
   LearnerService,
   LearnerCourse,
   LearnerCourseDetail,
+  CourseProgressResponse,
 } from '../../core/services/learner.service';
 
 @Component({
@@ -242,6 +243,18 @@ import {
                       {{ course.description || 'Deep English reflex training based on the Effortless English methodology.' }}
                     </p>
 
+                    @if (getProgress(course.slug); as prog) {
+                      <div class="progress-box">
+                        <div class="progress-bar-track">
+                          <div class="progress-bar-value" [style.width.%]="prog.progressPercent"></div>
+                        </div>
+                        <div class="progress-info">
+                          <span class="progress-label">{{ prog.progressPercent }}% completed</span>
+                          <span class="progress-count">{{ prog.completedLessons }}/{{ prog.totalLessons }} lessons</span>
+                        </div>
+                      </div>
+                    }
+
                     <div class="card-footer">
                       <div class="lesson-count">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -250,17 +263,32 @@ import {
                         <span>{{ course.totalLessons || 0 }} lessons</span>
                       </div>
 
-                      <button
-                        type="button"
-                        class="btn-explore"
-                        (click)="$event.stopPropagation(); openCourseModal(course)"
-                        aria-label="View lessons"
-                      >
-                        <span>Explore Course</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <polyline points="9 18 15 12 9 6"/>
-                        </svg>
-                      </button>
+                      <div class="footer-actions">
+                        @if (getProgress(course.slug)?.lastAccessedLessonSlug; as resumeSlug) {
+                          <button
+                            type="button"
+                            class="btn-resume"
+                            (click)="$event.stopPropagation(); resumeLesson(course.slug, resumeSlug)"
+                            title="Resume your recent lesson"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                              <polygon points="5 3 19 12 5 21 5 3"/>
+                            </svg>
+                            <span>Resume</span>
+                          </button>
+                        }
+                        <button
+                          type="button"
+                          class="btn-explore"
+                          (click)="$event.stopPropagation(); openCourseModal(course)"
+                          aria-label="View lessons"
+                        >
+                          <span>Explore</span>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"/>
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -337,7 +365,19 @@ import {
                       (click)="startLesson(selectedCourse()!.slug, lesson.slug)"
                       (keyup.enter)="startLesson(selectedCourse()!.slug, lesson.slug)"
                     >
-                      <div class="lesson-index">{{ idx + 1 }}</div>
+                      <div
+                        class="lesson-index"
+                        [class.is-completed]="isLessonCompleted(selectedCourse()!.slug, lesson.slug)"
+                        [title]="isLessonCompleted(selectedCourse()!.slug, lesson.slug) ? 'Completed' : 'Lesson ' + (idx + 1)"
+                      >
+                        @if (isLessonCompleted(selectedCourse()!.slug, lesson.slug)) {
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"/>
+                          </svg>
+                        } @else {
+                          {{ idx + 1 }}
+                        }
+                      </div>
                       <div class="lesson-info">
                         <h4 class="lesson-name">{{ lesson.title }}</h4>
                         <p class="lesson-sub">{{ lesson.description || 'Story reading, core vocabulary, and reflex audio' }}</p>
@@ -355,7 +395,18 @@ import {
 
             <div class="modal-footer">
               <button type="button" class="btn-cancel" (click)="closeCourseModal()">Close</button>
-              @if (selectedCourse()?.lessons?.length) {
+              @if (getProgress(selectedCourse()!.slug)?.lastAccessedLessonSlug; as resumeSlug) {
+                <button
+                  type="button"
+                  class="btn-primary-action"
+                  (click)="startLesson(selectedCourse()!.slug, resumeSlug)"
+                >
+                  <span>Resume Lesson</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"/>
+                  </svg>
+                </button>
+              } @else if (selectedCourse()?.lessons?.length) {
                 <button
                   type="button"
                   class="btn-primary-action"
@@ -759,6 +810,39 @@ import {
         overflow: hidden;
       }
 
+      .progress-box {
+        margin: 10px 0 16px;
+      }
+
+      .progress-bar-track {
+        height: 6px;
+        border-radius: 999px;
+        background: rgba(100, 116, 139, 0.16);
+        overflow: hidden;
+      }
+
+      .progress-bar-value {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #10b981, #059669);
+        transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .progress-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.76rem;
+        font-weight: 600;
+        color: var(--text-secondary, #64748b);
+        margin-top: 4px;
+      }
+
+      .progress-label {
+        color: #059669;
+        font-weight: 700;
+      }
+
       .card-footer {
         margin-top: auto;
         display: flex;
@@ -775,6 +859,36 @@ import {
         font-size: 0.85rem;
         color: var(--text-secondary, #64748b);
         font-weight: 600;
+      }
+
+      .footer-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .btn-resume {
+        min-height: 38px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: #ffffff;
+        border: none;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+        &:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+        }
+        &:active {
+          transform: translateY(0);
+        }
       }
 
       .btn-explore {
@@ -1017,6 +1131,10 @@ import {
         justify-content: center;
         color: #2563eb;
         flex-shrink: 0;
+        &.is-completed {
+          background: rgba(16, 185, 129, 0.15);
+          color: #10b981;
+        }
       }
 
       .lesson-info {
@@ -1185,6 +1303,7 @@ export class CourseDashboardComponent implements OnInit {
   private readonly router = inject(Router);
 
   courses = signal<LearnerCourse[]>([]);
+  progressMap = signal<Record<string, CourseProgressResponse>>({});
   isLoading = signal<boolean>(true);
   errorMsg = signal<string | null>(null);
   selectedLevel = signal<string>('ALL');
@@ -1214,6 +1333,7 @@ export class CourseDashboardComponent implements OnInit {
       next: (data) => {
         this.courses.set(data);
         this.isLoading.set(false);
+        this.loadAllCourseProgress(data);
       },
       error: (err) => {
         console.error('Failed to load courses:', err);
@@ -1221,6 +1341,35 @@ export class CourseDashboardComponent implements OnInit {
         this.isLoading.set(false);
       },
     });
+  }
+
+  loadAllCourseProgress(courses: LearnerCourse[]): void {
+    if (!this.authService.isAuthenticated()) return;
+    for (const course of courses) {
+      this.learnerService.getCourseProgress(course.slug).subscribe({
+        next: (prog) => {
+          this.progressMap.update((map) => ({ ...map, [course.slug]: prog }));
+        },
+        error: () => {
+          // Silently ignore if progress is not found or user is not enrolled yet
+        },
+      });
+    }
+  }
+
+  getProgress(courseSlug: string): CourseProgressResponse | undefined {
+    return this.progressMap()[courseSlug];
+  }
+
+  isLessonCompleted(courseSlug: string, lessonSlug: string): boolean {
+    const prog = this.progressMap()[courseSlug];
+    if (!prog) return false;
+    const lesson = prog.lessons?.find((l) => l.lessonSlug === lessonSlug);
+    return !!lesson?.isCompleted;
+  }
+
+  resumeLesson(courseSlug: string, lessonSlug: string): void {
+    this.router.navigate(['/courses', courseSlug, 'lessons', lessonSlug]);
   }
 
   selectLevel(level: string): void {

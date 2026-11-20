@@ -18,6 +18,30 @@
       </div>
 
       <div class="topbar-right">
+        <!-- Mark Complete Action Button -->
+        <button
+          type="button"
+          class="btn-complete-lesson"
+          [class.completed]="isCompleted()"
+          [disabled]="isSavingProgress()"
+          (click)="toggleCompleteLesson()"
+          [title]="isCompleted() ? 'Completed! Click to unmark' : 'Mark lesson as completed'"
+        >
+          @if (isCompleted()) {
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <span>Completed</span>
+          } @else {
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <span>Mark Complete</span>
+          }
+        </button>
+
         <!-- Theme Toggle -->
         <button
           type="button"
@@ -93,6 +117,21 @@
           <span class="tab-badge" *ngIf="playlist().length">{{ playlist().length }}</span>
         </button>
       </nav>
+
+      <!-- Celebration & Completion Banner -->
+      @if (showCompletionBanner()) {
+        <div class="completion-banner">
+          <div class="banner-badge">🎉</div>
+          <div class="banner-info">
+            <h4 class="banner-title">Congratulations! Lesson Completed!</h4>
+            <p class="banner-desc">You've successfully finished this lesson. Keep up the great reflex habit!</p>
+          </div>
+          <div class="banner-actions">
+            <a [routerLink]="['/courses', courseSlug()]" class="btn-banner-link">Course Road Map</a>
+            <button type="button" class="btn-banner-close" (click)="closeCompletionBanner()" aria-label="Dismiss completion notice">✕</button>
+          </div>
+        </div>
+      }
 
       <!-- TAB 1: BÀI ĐỌC (STORY VIEWER & INTERACTIVE LOOKUP) -->
       <section class="tab-pane" *ngIf="activeTab() === 'story'">
