@@ -5,6 +5,7 @@ import {
   UserLessonProgress,
   ProgressStatus,
 } from '../../database/entities/user-lesson-progress.entity';
+import { UserDailyStudyLog } from '../../database/entities/user-daily-study-log.entity';
 import { Course } from '../../database/entities/course.entity';
 import { Lesson } from '../../database/entities/lesson.entity';
 import { UpdateProgressDto } from './dto/update-progress.dto';
@@ -20,6 +21,8 @@ export class ProgressService {
   constructor(
     @InjectRepository(UserLessonProgress)
     private readonly progressRepository: Repository<UserLessonProgress>,
+    @InjectRepository(UserDailyStudyLog)
+    private readonly dailyStudyLogRepository: Repository<UserDailyStudyLog>,
     @InjectRepository(Course)
     private readonly courseRepository: Repository<Course>,
     @InjectRepository(Lesson)
@@ -214,6 +217,35 @@ export class ProgressService {
         ...(progress.playbackPositions || {}),
         ...dto.playbackPositions,
       };
+    }
+
+    // 3. Time spent delta tracking & daily activity aggregation
+    if (dto.timeSpentDeltaSeconds && dto.timeSpentDeltaSeconds > 0) {
+      const delta = Math.min(60, Math.max(1, Math.round(dto.timeSpentDeltaSeconds)));
+      progress.totalTimeSpentSeconds = (progress.totalTimeSpentSeconds || 0) + delta;
+
+      try {
+        const today = new Date();
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        let dailyLog = await this.dailyStudyLogRepository.findOne({
+          where: { userId, studyDate: todayStr },
+        });
+
+        if (dailyLog) {
+          dailyLog.totalSeconds += delta;
+          await this.dailyStudyLogRepository.save(dailyLog);
+        } else {
+          dailyLog = this.dailyStudyLogRepository.create({
+            userId,
+            studyDate: todayStr,
+            totalSeconds: delta,
+            lessonsCount: 1,
+          });
+          await this.dailyStudyLogRepository.save(dailyLog);
+        }
+      } catch (err) {
+        this.logger.warn(`Failed to update daily study log: ${err}`);
+      }
     }
 
     progress.lastListenedAt = new Date();

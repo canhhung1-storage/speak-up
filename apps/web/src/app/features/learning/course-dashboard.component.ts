@@ -25,6 +25,11 @@ import {
               <span class="brand-title">SpeakUp</span>
             </a>
             <span class="badge-role">Learner</span>
+
+            <nav class="nav-links">
+              <a routerLink="/courses" class="nav-item active">Courses</a>
+              <a routerLink="/dashboard" class="nav-item">Analytics</a>
+            </nav>
           </div>
 
           <div class="nav-actions">
@@ -491,6 +496,33 @@ import {
         border-radius: 9999px;
         background: rgba(37, 99, 235, 0.1);
         color: #2563eb;
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-left: 12px;
+      }
+
+      .nav-item {
+        font-size: 0.875rem;
+        font-weight: 600;
+        padding: 6px 14px;
+        border-radius: 9999px;
+        color: var(--text-secondary, #64748b);
+        text-decoration: none;
+        transition: all 0.2s ease;
+
+        &:hover {
+          color: var(--text-primary, #0f172a);
+          background: rgba(37, 99, 235, 0.08);
+        }
+
+        &.active {
+          color: #2563eb;
+          background: rgba(37, 99, 235, 0.12);
+        }
       }
 
       .nav-actions { gap: 8px; }

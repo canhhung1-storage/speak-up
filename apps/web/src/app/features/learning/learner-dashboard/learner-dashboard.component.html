@@ -1,0 +1,389 @@
+<div class="dashboard-shell">
+  <!-- Top Navigation Bar -->
+  <header class="top-nav">
+    <div class="nav-container">
+      <div class="brand-group">
+        <a routerLink="/" class="brand-link" title="SpeakUp Home">
+          <span class="brand-icon">S</span>
+          <span class="brand-title">SpeakUp</span>
+        </a>
+
+        <!-- Navigation Tabs -->
+        <nav class="nav-links" aria-label="Main Navigation">
+          <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="9"/>
+              <rect x="14" y="3" width="7" height="5"/>
+              <rect x="14" y="12" width="7" height="9"/>
+              <rect x="3" y="16" width="7" height="5"/>
+            </svg>
+            <span>Dashboard</span>
+          </a>
+          <a routerLink="/courses" routerLinkActive="active" class="nav-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+            <span>Courses</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="nav-actions">
+        <!-- Theme Toggle Button -->
+        <button
+          type="button"
+          class="icon-btn theme-btn"
+          (click)="themeService.toggleTheme()"
+          [title]="themeService.isDark() ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+          aria-label="Toggle Theme"
+        >
+          @if (themeService.isDark()) {
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+          } @else {
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          }
+        </button>
+
+        <!-- Admin Studio Link (if Admin) -->
+        @if (authService.isAdmin()) {
+          <a routerLink="/admin" class="btn-admin-cms" title="Access Admin Studio">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+            </svg>
+            <span class="btn-admin-label">Admin</span>
+          </a>
+        }
+
+        <!-- User Pill -->
+        <div class="user-pill">
+          @if (authService.currentUser()?.avatarUrl && !imageFailed()) {
+            <img
+              [src]="authService.currentUser()?.avatarUrl"
+              class="user-avatar"
+              alt="Avatar"
+              referrerpolicy="no-referrer"
+              (error)="imageFailed.set(true)"
+            />
+          } @else {
+            <div class="avatar-fallback">
+              {{ getInitials(authService.currentUser()?.fullName) }}
+            </div>
+          }
+          <span class="user-name">{{ authService.currentUser()?.fullName || 'Learner' }}</span>
+          <button
+            type="button"
+            class="btn-logout"
+            (click)="authService.logout()"
+            title="Sign Out"
+            aria-label="Sign Out"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Body -->
+  <main class="main-body">
+    <div class="content-container">
+
+      <!-- Loading State -->
+      @if (isLoading()) {
+        <div class="skeleton-container">
+          <div class="skeleton-banner"></div>
+          <div class="skeleton-grid">
+            <div class="skeleton-card" *ngFor="let item of [1, 2, 3, 4]"></div>
+          </div>
+          <div class="skeleton-chart-box"></div>
+        </div>
+      }
+
+      <!-- Error State -->
+      @else if (errorMessage()) {
+        <div class="status-card error-card">
+          <div class="status-icon">⚠️</div>
+          <h3>Unable to load your analytics</h3>
+          <p>{{ errorMessage() }}</p>
+          <button type="button" class="btn-retry" (click)="loadDashboardData()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+            <span>Try Again</span>
+          </button>
+        </div>
+      }
+
+      <!-- Dashboard Content -->
+      @else {
+        <!-- Welcome Hero & Streak Banner -->
+        <section class="hero-streak-banner">
+          <div class="hero-left">
+            <div class="greeting-badge">
+              <span class="badge-dot"></span>
+              <span>Learner Progress & Habit Analytics</span>
+            </div>
+            <h1 class="hero-title">
+              Hello, {{ authService.currentUser()?.fullName || 'Champion' }}!
+            </h1>
+            <p class="hero-sub">
+              Every minute of deep listening rewires your brain for effortless English reflex. Here is your study breakdown:
+            </p>
+          </div>
+
+          <div class="streak-pill-box">
+            <div class="flame-icon-wrap">
+              <span class="flame-icon">🔥</span>
+            </div>
+            <div class="streak-text-wrap">
+              <div class="streak-count-row">
+                <span class="streak-number">{{ summary()?.currentStreak || 0 }}</span>
+                <span class="streak-unit">{{ (summary()?.currentStreak === 1) ? 'Day' : 'Days' }}</span>
+              </div>
+              <span class="streak-label">Active Study Streak</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4 Key Stat Metric Cards -->
+        <section class="stat-metrics-grid">
+          <!-- Card 1: Total Study Time -->
+          <div class="metric-card">
+            <div class="metric-icon-wrap icon-time">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div class="metric-content">
+              <span class="metric-title">Total Study Time</span>
+              <div class="metric-value">{{ formattedTotalHours() }}</div>
+              <span class="metric-desc">Accumulated active listening</span>
+            </div>
+          </div>
+
+          <!-- Card 2: Today's Goal -->
+          <div class="metric-card">
+            <div class="metric-icon-wrap icon-goal">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+              </svg>
+            </div>
+            <div class="metric-content">
+              <span class="metric-title">Today's Goal ({{ summary()?.dailyGoalMinutes || 30 }}m)</span>
+              <div class="metric-value">{{ formattedTodayStudyTime() }}</div>
+              <div class="metric-progress-bar">
+                <div class="metric-progress-fill" [style.width.%]="summary()?.goalProgressPercent || 0"></div>
+              </div>
+              <span class="metric-desc">{{ summary()?.goalProgressPercent || 0 }}% of daily target reached</span>
+            </div>
+          </div>
+
+          <!-- Card 3: Completed Lessons -->
+          <div class="metric-card">
+            <div class="metric-icon-wrap icon-lessons">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+            </div>
+            <div class="metric-content">
+              <span class="metric-title">Completed Lessons</span>
+              <div class="metric-value">{{ summary()?.completedLessonsCount || 0 }}</div>
+              <span class="metric-desc">{{ summary()?.inProgressLessonsCount || 0 }} lessons in progress</span>
+            </div>
+          </div>
+
+          <!-- Card 4: Study Habit -->
+          <div class="metric-card">
+            <div class="metric-icon-wrap icon-habit">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            </div>
+            <div class="metric-content">
+              <span class="metric-title">Habit Rhythm</span>
+              <div class="metric-value">Consistent</div>
+              <span class="metric-desc">Effortless English Reflex Habit</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2-Column Analytics Section -->
+        <section class="analytics-double-grid">
+          <!-- Column 1: Weekly Activity Bar Chart -->
+          <div class="chart-card">
+            <div class="card-header-row">
+              <div>
+                <h3 class="card-section-title">Weekly Study Activity</h3>
+                <p class="card-section-sub">Active learning minutes over the past 7 days</p>
+              </div>
+              <span class="chart-badge">Last 7 Days</span>
+            </div>
+
+            <!-- CSS SVG Bar Chart -->
+            <div class="bars-container">
+              @for (day of summary()?.weeklyActivity; track day.date) {
+                <div class="bar-col" [class.is-today]="day.isToday">
+                  <div class="bar-track">
+                    <div
+                      class="bar-fill"
+                      [style.height.%]="getBarHeightPercent(day.minutes)"
+                      [title]="day.date + ': ' + day.minutes + ' minutes'"
+                    >
+                      <span class="bar-tooltip">{{ day.minutes }}m</span>
+                    </div>
+                  </div>
+                  <span class="bar-label" [class.highlight-label]="day.isToday">{{ day.dayLabel }}</span>
+                  <span class="bar-date-sub">{{ day.date.slice(5) }}</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Column 2: Today's Focus & Method Rule Tip -->
+          <div class="tip-card">
+            <div class="card-header-row">
+              <h3 class="card-section-title">Effortless Principle</h3>
+              <span class="tip-badge">Golden Rule</span>
+            </div>
+
+            <div class="tip-body">
+              <div class="quote-symbol">“</div>
+              <h4 class="tip-headline">Rule #4: Deep Learning Means Repetition</h4>
+              <p class="tip-text">
+                Do not rush through lessons. Listen to the same Mini-Story audio 30 to 50 times over a week until the words pop out of your mouth automatically without thinking or translating.
+              </p>
+
+              <div class="cta-box">
+                <a routerLink="/courses" class="btn-cta-courses">
+                  <span>Browse All Courses</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Detailed Breakdown: Study Time Per Lesson -->
+        <section class="lesson-breakdown-section">
+          <div class="section-header-row">
+            <div>
+              <h2 class="section-title">Study Time By Lesson</h2>
+              <p class="section-sub">Track how much time you have dedicated to each lesson</p>
+            </div>
+
+            <!-- Search Filter Input -->
+            <div class="search-input-wrap">
+              <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input
+                type="text"
+                class="search-input"
+                placeholder="Filter by lesson or course..."
+                [value]="searchQuery()"
+                (input)="onSearchChange($event)"
+              />
+            </div>
+          </div>
+
+          <!-- Empty Lessons State -->
+          @if (filteredLessonTimes().length === 0) {
+            <div class="empty-breakdown-card">
+              <div class="empty-icon">🎧</div>
+              <h3>No study records found</h3>
+              <p>
+                @if (searchQuery()) {
+                  No lessons matched "{{ searchQuery() }}". Try clearing your search filter.
+                } @else {
+                  You haven't started listening to any lessons yet. Pick a course to begin your journey!
+                }
+              </p>
+              <a routerLink="/courses" class="btn-start-now">Start Learning Now</a>
+            </div>
+          }
+
+          <!-- Lessons Table -->
+          @else {
+            <div class="table-responsive-wrapper">
+              <table class="breakdown-table">
+                <thead>
+                  <tr>
+                    <th>Lesson</th>
+                    <th>Course</th>
+                    <th>Time Dedicated</th>
+                    <th>Status</th>
+                    <th>Last Active</th>
+                    <th class="text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of filteredLessonTimes(); track item.lessonId) {
+                    <tr class="table-row">
+                      <td class="cell-lesson">
+                        <div class="lesson-cell-wrap">
+                          <span class="lesson-icon">📖</span>
+                          <span class="lesson-title-text">{{ item.lessonTitle }}</span>
+                        </div>
+                      </td>
+                      <td class="cell-course">
+                        <span class="course-pill">{{ item.courseTitle }}</span>
+                      </td>
+                      <td class="cell-time">
+                        <span class="time-badge">{{ formatMinutes(item.totalMinutesSpent) }}</span>
+                      </td>
+                      <td class="cell-status">
+                        @if (item.status === 'COMPLETED') {
+                          <span class="badge-status status-completed">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                              <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                            <span>Completed</span>
+                          </span>
+                        } @else {
+                          <span class="badge-status status-in-progress">
+                            <span class="pulse-dot"></span>
+                            <span>In Progress</span>
+                          </span>
+                        }
+                      </td>
+                      <td class="cell-date">
+                        {{ item.lastListenedAt | date:'mediumDate' }}
+                      </td>
+                      <td class="cell-action text-right">
+                        <button
+                          type="button"
+                          class="btn-continue-lesson"
+                          (click)="navigateToLesson(item.courseSlug, item.lessonSlug)"
+                          title="Open learning workspace"
+                        >
+                          <span>Continue</span>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"/>
+                          </svg>
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </section>
+      }
+    </div>
+  </main>
+</div>

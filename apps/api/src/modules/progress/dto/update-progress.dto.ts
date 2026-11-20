@@ -52,4 +52,13 @@ export class UpdateProgressDto {
   @IsOptional()
   @IsBoolean()
   isCompleted?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Incremental active study time in seconds during this session',
+    example: 15,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  timeSpentDeltaSeconds?: number;
 }

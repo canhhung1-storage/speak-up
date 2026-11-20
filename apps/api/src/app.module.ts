@@ -10,6 +10,7 @@ import { LessonsModule } from './modules/lessons/lessons.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { ProgressModule } from './modules/progress/progress.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 import {
   User,
   Course,
@@ -18,6 +19,7 @@ import {
   LessonVocabulary,
   LessonAudio,
   UserLessonProgress,
+  UserDailyStudyLog,
 } from './database/entities';
 
 @Module({
@@ -37,6 +39,7 @@ import {
     LessonsModule,
     AdminModule,
     ProgressModule,
+    AnalyticsModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -55,6 +58,7 @@ import {
           LessonVocabulary,
           LessonAudio,
           UserLessonProgress,
+          UserDailyStudyLog,
         ],
         // Chỉ tự động đồng bộ schema trong môi trường development, cấm chạy trên production tránh mất mát dữ liệu
         synchronize: configService.get<string>('NODE_ENV') !== 'production',

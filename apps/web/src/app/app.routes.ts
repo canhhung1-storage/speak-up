@@ -18,6 +18,14 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'dashboard',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import(
+        './features/learning/learner-dashboard/learner-dashboard.component'
+      ).then((m) => m.LearnerDashboardComponent),
+  },
+  {
     path: 'courses',
     canActivate: [authGuard],
     loadComponent: () =>

@@ -97,6 +97,36 @@ export interface UpdateProgressDto {
   lastPlayedSeconds?: number;
   playbackPositions?: Record<string, number>;
   isCompleted?: boolean;
+  timeSpentDeltaSeconds?: number;
+}
+
+export interface DailyActivityItem {
+  date: string;
+  dayLabel: string;
+  minutes: number;
+  isToday: boolean;
+}
+
+export interface DashboardSummaryResponse {
+  totalStudyMinutes: number;
+  todayStudyMinutes: number;
+  dailyGoalMinutes: number;
+  goalProgressPercent: number;
+  currentStreak: number;
+  completedLessonsCount: number;
+  inProgressLessonsCount: number;
+  weeklyActivity: DailyActivityItem[];
+}
+
+export interface LessonStudyTimeItem {
+  lessonId: string;
+  lessonTitle: string;
+  lessonSlug: string;
+  courseTitle: string;
+  courseSlug: string;
+  totalMinutesSpent: number;
+  status: ProgressStatus;
+  lastListenedAt: string;
 }
 
 @Injectable({
@@ -172,5 +202,19 @@ export class LearnerService {
       dto,
       { params },
     );
+  }
+
+  /**
+   * Lấy số liệu phân tích tổng quan cho trang Dashboard (Tổng thời gian, Streak, Biểu đồ tuần)
+   */
+  getDashboardAnalytics(): Observable<DashboardSummaryResponse> {
+    return this.http.get<DashboardSummaryResponse>(`${this.baseUrl}/analytics/dashboard`);
+  }
+
+  /**
+   * Lấy chi tiết thời gian học tập trên từng bài học
+   */
+  getLessonStudyTimes(): Observable<LessonStudyTimeItem[]> {
+    return this.http.get<LessonStudyTimeItem[]>(`${this.baseUrl}/analytics/lessons`);
   }
 }

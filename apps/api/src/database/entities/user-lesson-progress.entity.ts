@@ -53,6 +53,13 @@ export class UserLessonProgress {
   lastPlayedSeconds: number;
 
   @Column({
+    name: 'total_time_spent_seconds',
+    type: 'integer',
+    default: 0,
+  })
+  totalTimeSpentSeconds: number;
+
+  @Column({
     type: 'jsonb',
     name: 'playback_positions',
     default: () => "'{}'",
