@@ -7,6 +7,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { UserLessonProgress } from './user-lesson-progress.entity';
+import { UserDailyStudyLog } from './user-daily-study-log.entity';
 
 export enum UserRole {
   ADMIN = 'ADMIN',
@@ -49,4 +50,8 @@ export class User {
   // Quan hệ 1 - Nhiều với tiến độ học
   @OneToMany(() => UserLessonProgress, (progress) => progress.user)
   progress: UserLessonProgress[];
+
+  // Quan hệ 1 - Nhiều với nhật ký học tập theo ngày
+  @OneToMany(() => UserDailyStudyLog, (log) => log.user)
+  dailyStudyLogs: UserDailyStudyLog[];
 }

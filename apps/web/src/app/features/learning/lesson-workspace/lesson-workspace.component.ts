@@ -84,6 +84,8 @@ export class LessonWorkspaceComponent implements OnInit, OnDestroy {
   private initialSeekSeconds = 0;
   private lastSavedSecond = 0;
   private saveTimeout: ReturnType<typeof setTimeout> | null = null;
+  private activeStudySecondsDelta = 0;
+  private studyTimer: ReturnType<typeof setInterval> | null = null;
 
   // Audio Reflex Player State
   readonly playlist = signal<PlayableTrack[]>([]);
@@ -124,6 +126,7 @@ export class LessonWorkspaceComponent implements OnInit, OnDestroy {
     this.courseSlug.set(cSlug);
     this.lessonSlug.set(lSlug);
     this.loadLessonData(cSlug, lSlug);
+    this.startStudyTimer();
 
     // Keyboard listener for flashcards
     window.addEventListener('keydown', this.handleKeyDown);
@@ -131,6 +134,10 @@ export class LessonWorkspaceComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     window.removeEventListener('keydown', this.handleKeyDown);
+    if (this.studyTimer) {
+      clearInterval(this.studyTimer);
+      this.studyTimer = null;
+    }
     if (this.saveTimeout) {
       clearTimeout(this.saveTimeout);
     }
@@ -138,6 +145,18 @@ export class LessonWorkspaceComponent implements OnInit, OnDestroy {
     if (this.audioPlayerRef?.nativeElement) {
       this.audioPlayerRef.nativeElement.pause();
     }
+  }
+
+  private startStudyTimer(): void {
+    if (this.studyTimer) {
+      clearInterval(this.studyTimer);
+    }
+    this.studyTimer = setInterval(() => {
+      // Track study time when document is visible and audio is actively playing
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible' && this.isPlaying()) {
+        this.activeStudySecondsDelta += 1;
+      }
+    }, 1000);
   }
 
   loadLessonData(cSlug: string, lSlug: string): void {
@@ -428,6 +447,9 @@ export class LessonWorkspaceComponent implements OnInit, OnDestroy {
     if (!track || !lSlug) return;
 
     const curSec = Math.floor(this.currentTime());
+    const deltaSeconds = this.activeStudySecondsDelta;
+    this.activeStudySecondsDelta = 0;
+
     this.learnerService
       .updateLessonProgress(
         lSlug,
@@ -436,6 +458,7 @@ export class LessonWorkspaceComponent implements OnInit, OnDestroy {
           lastPlayedSeconds: curSec,
           status: this.isCompleted() ? 'COMPLETED' : 'IN_PROGRESS',
           playbackPositions: { [track.id]: curSec },
+          timeSpentDeltaSeconds: deltaSeconds > 0 ? deltaSeconds : undefined,
         },
         cSlug,
       )
@@ -444,7 +467,8 @@ export class LessonWorkspaceComponent implements OnInit, OnDestroy {
           this.lessonProgress.set(res);
         },
         error: () => {
-          // Silently ignore autosave errors
+          // Restore un-saved study delta on failure so it can be retried
+          this.activeStudySecondsDelta += deltaSeconds;
         },
       });
   }
@@ -458,6 +482,9 @@ export class LessonWorkspaceComponent implements OnInit, OnDestroy {
     const nextCompleted = !this.isCompleted();
     this.isSavingProgress.set(true);
 
+    const deltaSeconds = this.activeStudySecondsDelta;
+    this.activeStudySecondsDelta = 0;
+
     this.learnerService
       .updateLessonProgress(
         lSlug,
@@ -465,6 +492,7 @@ export class LessonWorkspaceComponent implements OnInit, OnDestroy {
           isCompleted: nextCompleted,
           lastTrackId: this.currentTrack()?.id,
           lastPlayedSeconds: Math.floor(this.currentTime()),
+          timeSpentDeltaSeconds: deltaSeconds > 0 ? deltaSeconds : undefined,
         },
         cSlug,
       )
@@ -478,6 +506,7 @@ export class LessonWorkspaceComponent implements OnInit, OnDestroy {
           }
         },
         error: (err) => {
+          this.activeStudySecondsDelta += deltaSeconds;
           console.error('Failed to update completion status:', err);
           this.isSavingProgress.set(false);
         },

@@ -5,3 +5,4 @@ export * from './lesson-article.entity';
 export * from './lesson-vocabulary.entity';
 export * from './lesson-audio.entity';
 export * from './user-lesson-progress.entity';
+export * from './user-daily-study-log.entity';
